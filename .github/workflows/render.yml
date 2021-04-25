@@ -1,0 +1,32 @@
+name: Render
+
+on: [push]
+
+jobs:
+  asciidoctor_job:
+    runs-on: ubuntu-latest
+    name: Render AsciiDoctor
+    steps:
+    - name: Check out code 🛎️
+      uses: actions/checkout@v2
+    - name: Build AsciiDoc step 🔧
+      id: documents
+      uses: Analog-inc/asciidoctor-action@v1.2.1
+      with:
+        shellcommand: "./.github/workflows/asciidoc.sh"
+    - name: Save AsciiDoc step
+      uses: actions/upload-artifact@v1
+      with:
+        name: Docs
+        path: ./outputs/
+    - name: Deploy 🚀
+      uses: JamesIves/github-pages-deploy-action@4.1.1
+      with:
+        branch: rendered
+        folder: outputs
+    - name: Deploy 🚀
+      uses: JamesIves/github-pages-deploy-action@4.1.1
+      with:
+        branch: gh-pages
+        folder: outputs/html
+
