@@ -14,18 +14,18 @@ jobs:
       uses: Analog-inc/asciidoctor-action@v1.2.1
       with:
         shellcommand: "./.github/workflows/asciidoc.sh"
-    - name: Save AsciiDoc step
-      uses: actions/upload-artifact@v1
-      with:
-        name: Docs
-        path: ./outputs/
-    - name: Deploy 🚀
+    - name: Extract branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
+    - name: Deploy binaries 🚀
       uses: JamesIves/github-pages-deploy-action@4.1.1
       with:
-        branch: rendered
+        branch: rendered/${{ steps.extract_branch.outputs.branch }}
         folder: outputs
-    - name: Deploy 🚀
+    - name: Deploy GH pages 🚀
       uses: JamesIves/github-pages-deploy-action@4.1.1
+      if: ${{ github.ref == 'refs/heads/main' }}
       with:
         branch: gh-pages
         folder: outputs/html
