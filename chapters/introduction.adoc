@@ -1,0 +1,57 @@
+== Introduction
+:hardbreaks-option:
+
+Java est un langage sorti en 1998 et développé par Sun Microsystems.
+
+On fait la distinction entre la JVM (Java Virtual Machine) qui permet l’exécution d’un programme Java et le JDK (Java Development Kit), qui comprend la JVM, ainsi que les outils de développement permettant de créer un programme Java, notamment le compilateur.
+
+En 2006, le compilateur et la machine virtuelle (JVM pour Java Virtual Machine) sont open-sourcés sous licence GNU.
+En 2009, Oracle acquiers Sun Microsystems et Java devient un produit Oracle.
+L’utilisation des binaires du JDK (Java Development Kit) produits par Oracle sont alors soumis à une license complexe pour les usages professionnels.
+
+Il existe cependant d’autres distributions (la différence pour les entreprises étant le niveau de support possible) :
+
+* Eclipse Adoptium (anciennement AdoptOpenJDK)
+* Azul Zulu Builds of OpenJDK
+* Red Hat build of OpenJDK
+* Amazon Corretto
+* etc.
+
+<<<
+
+=== Objectifs du Langage
+Initialement, le langage Java est créé pour palier aux défauts de C++, et notamment la gestion manuelle de la mémoire, tout en gardant le côté *_orienté objet_*.
+[NOTE]
+====
+À cette fin le ramasse-miettes (Garbage Collector ou GC) est créé.
+Il s’agit d’un programme indépendant s’exécutant dans la JVM et dont le rôle est de scruter les objets qui ne sont plus référencés afin de libérer la mémoire correspondante.
+====
+
+Les créateurs du langage souhaitaient également que les programmes écrits en Java soient indépendants de la plateforme d’exécution (que ce soit Linux, Mac ou Windows).
+[NOTE]
+====
+Pour cela, un programme Java est d’abord compilé, ce qui produit du _byte code_.
+Ce _byte code_ est ensuite interprété par la JVM qui [.underline]#elle# dépend de la plateforme.
+
+Un programme Java n’a donc pas besoin du bit d’exécution pour pouvoir être lancé sous Linux, car la JVM va lire (interpréter) les binaires précédemment compilés.
+====
+
+Par la suite, s’ajoutent à ces objectifs initiaux
+
+* une forte rétro-compatibilité, ce qui permettra une large adoption du langage
+* une efficacité à l’exécution grâce au compilateur JIT (Just In Time) qui optimise le _byte code_ en analysant son utilisation.
+Cette technique est associée à un temps de chauffe, temps nécessaire au JIT pour "observer" l’utilisation qui est faite du _byte code_.
+* le support dans la bibliothèque standard d’un certain nombre de connecteurs (TCP, UDP, HTTP, etc.), de structures de données (`List`, `Set`, `Map`, etc.) et d’algorithmes (b-search, etc.)
+* une évolution constante permettant de s’adapter aux paradigmes modernes, comme la programmation fonctionnelle ou réactive
+
+Globalement, Java se veut un langage de haut niveau, facile d’accès et performant (ce point peut être débattu, car la JVM utilise une mémoire non négligeable).
+
+=== Adoption
+Java compte aujourd’hui parmi les languages les plus populaires en entreprise, pour les raisons précédentes, mais également grâce à un écosystème riche.
+
+Dans cet écosystème on trouve notamment :
+
+* Maven et Gradle (et d’autres systèmes de construction moins répandus) qui permettent de gérer _simplement_ un projet et ses dépendances
+* d’autres languages qui compilent vers du _byte code_ (Groovy, Scala, Kotlin, etc.)
+* une communauté sans cesse croissante de programmeurs venant enrichir une grande collection de bibliothèques.
+* des IDE de très bonne qualité (IntelliJ, Eclipse, etc.)

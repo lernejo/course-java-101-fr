@@ -1,0 +1,405 @@
+== Le langage Java, troisième partie
+
+=== Généricité
+
+Les types génériques sont un moyen d’exprimer une relation entre un type et les types utilisés par son état, les sous-types.
+Les collections sont des types génériques qui permettent d’exprimer le type des éléments qu’elles peuvent contenir, indépendamment de leur fonctionnement.
+On peut donc avoir une liste de `String`, d’`Integer`, ou de n’importe quel type d’objet.
+
+L’intérêt d’une telle écriture est de lier un (ou plusieurs) sous-type à une instance.
+Ainsi en créant une liste de `String`, on ne pourra y ajouter que des `String`.
+
+Déclarer un type générique se fait grâce aux chevrons : `List<String>`.
+Quand le ou les sous-types sont inférables par le compilateur, ils peuvent être omis en ne gardant que les chevrons : `List<String> names = new ArrayList<>()`.
+Cette écriture est appelée _diamond operator_ en référence à la forme des deux chevrons `<>`.
+
+Il est tout à fait possible de déclarer ses propres types génériques :
+
+.Fichier Item.java
+[source,java]
+----
+public interface Item {
+    String name();
+    double price();
+}
+----
+
+.Fichier Basket.java
+[source,java]
+----
+public interface Basket<I extends Item> { // <1>
+
+    void add(I item); // <2>
+
+    double totalPrice();
+}
+----
+<1> l’interface `Basket` définit un sous-type `I` qui doit implémenter l’interface `Item`
+`I` est donc un prête-nom pour n’importe quel type implémentant `Item`
+<2> la méthode `add` prend en paramètre un objet de type I, soit n’importe quel objet qui implémente `Item`
+
+.Fichier MarketItem.java
+[source,java]
+----
+public interface MarketItem extends Item { // <1>
+
+    double weight();
+}
+----
+<1> L’interface `MarketItem` étend l’interface `Item`
+
+.Fichier MarketBasket.java
+[source,java]
+----
+public class MarketBasket implements Basket<MarketItem> { // <1>
+
+    private static final double MAX_WEIGHT_IN_KG = 3.0;
+
+    private final List<MarketItem> items = new ArrayList<>();
+
+    public void add(MarketItem item) { // <2>
+        if (totalWeight() + item.weight() > MAX_WEIGHT_IN_KG) { // <1>
+            throw new MarketBasketFullException("Carry these water bottles yourself !");
+        }
+        items.add(item);
+    }
+
+    private double totalWeight() {
+        return items.stream().mapToDouble(MarketItem::weight).sum();
+    }
+
+    public double totalPrice() {
+        return items.stream().mapToDouble(MarketItem::price).sum();
+    }
+}
+----
+<1> la classe `MarketBasket` implémente l’interface `Basket` avec comme sous-type `I` de celle-ci l’interface `MarketItem`
+<2> la méthode `add` ne pourra prendre en paramètre que des objets qui implémentent `MarketItem`
+<3> si le poids du panier avec le nouvel élément dépasse le max, une erreur est lancée
+
+=== Collections
+
+À la différence des tableaux, les collections sont des objets, ont des méthodes et la plupart du temps, leur taille peut varier.
+
+Ces structures de données se spécialisent au travers de plusieurs interfaces et classes fournies par la bibliothèque standard, mais toutes implémentent l’interface `java.lang.Iterable`.
+
+Cette interface est tout ce dont a besoin la machine virtuelle pour itérer.
+En effet, cette interface comporte principalement une méthode `iterator` renvoyant un objet de type `java.util.Iterator`.
+A son tour cette interface a deux méthodes :
+
+* `hasNext` renvoyant un `boolean`
+* `next` renvoyant un objet ou lançant une `NoSuchElementException` s’il n’y a plus d’éléments à parcourir
+
+Ainsi en appelant la méthode `Iterable#iterator()`, on récupère un curseur permettant d’itérer sur les éléments d’un ensemble.
+Mais rien ne précise si cet ensemble est fini.
+
+.Fichier NameUtils.java
+[source,java]
+----
+public class NameUtils {
+    public void displayNames(Iterable<String> names) {
+        Iterator<String> namesIterator = names.iterator(); // <1>
+        while (namesIterator.hasNext()) { // <2>
+            String name = namesIterator.next(); // <3>
+            System.out.println(name);
+        }
+    }
+}
+----
+<1> création d’un nouvel `Iterator`
+<2> tant qu’il y aura un élément _après_, la boucle continuera
+<3> on fait avancer d’un cran le curseur en lui demandant de renvoyer le prochain élément
+
+
+C’est l’interface `java.util.Collection` qui apporte, entre autres, la méthode `size` et ainsi spécialise ses sous-types en ensembles d’éléments [.underline]#finis#.
+Elle apporte également des méthodes pour ajouter, supprimer et chercher des éléments dans l’ensemble.
+
+Les opérations d’ajout, de recherche ou de suppression d’éléments reposent sur les deux fonctions d’identité, `equals` et `hashCode`.
+Ainsi tout élément placé dans une collection doit ré-implémenter ces deux méthodes.
+Dans le cas contraire, les méthodes des collections ne se comporteront pas comme attendu.
+
+==== List
+
+La caractéristique principale de l’interface `java.util.List`, est qu’elle garantit que les éléments de l’ensemble sont [.underline]#ordonnés#.
+Cette interface apporte donc des méthodes pour ajouter ou supprimer des éléments par leur index.
+
+L’implémentation la plus simple est `java.util.ArrayList` et repose sur un stockage des éléments dans un tableau.
+Par défaut la taille de ce tableau est de 10.
+Si on essaie d’ajouter plus d’éléments que la capacité courante du tableau, la liste créera un nouveau tableau de capacité supérieure et y copiera les éléments du précédent tableau ainsi que les nouveaux.
+
+[source,java]
+----
+List<Person> people = new ArrayList<>(); // <1>
+people.add(new Person("Martin", 59)); // <2>
+people.add(new Person("Alice", 32));
+
+boolean removed = people.remove(new Person("Jane", 61)); // <3>
+
+int size = people.size(); // size = 2
+----
+<1> La variable `people` de type `List` pointe sur un nouvel objet de type `ArrayList`
+<2> ajout d’un élément dans la liste
+<3> tentative de suppression d’un élément de la liste, qui retournera `false` car l’élément en est absent
+
+==== Set
+
+La caractéristique principale de l’interface `java.util.Set`, est qu’elle garantit qu’il n’y a pas de [.underline]#doublons# dans l’ensemble.
+Ainsi insérer plus d’une fois un même objet dans l’ensemble ne fera rien.
+
+L’implémentation la plus simple est `java.util.HashSet` et repose sur une `java.util.HashMap`, en stockant les éléments en tant que clés de la `Map`.
+
+[source,java]
+----
+Set<Person> people = new HashSet<>(); // <1>
+people.add(new Person("Martin", 59));
+people.add(new Person("Alice", 32));
+people.add(new Person("Martin", 59)); // <2>
+
+boolean removed = people.remove(new Person("Martin", 59)); // <3>
+
+int size = people.size(); // size = 1
+----
+<1> La variable `people` de type `Set` pointe sur un nouvel objet de type `HashSet`
+<2> cet ajout n’aura aucun effet, car l’ensemble contient déjà cet élément
+<3> suppression d’un élément, qui retournera `true` car l’élément était bien présent
+
+==== Map
+
+L’interface `java.util.Map` n’implémente pas `java.util.Collection`, ni même `java.lang.Iterable` en Java, mais on la considère néanmoins comme "une collection" du fait de son usage similaire.
+Il s’agit d’un ensemble d’associations clé -> valeur.
+
+L’implémentation la plus simple est `java.util.HashMap` et repose sur le principe de clé de hachage, calculée grâce à la méthode `hashCode`.
+L’état d’une `HashMap` est stocké dans un tableau, de taille 16 par défaut.
+
+Quand on ajoute une paire (clé -> valeur), le `hashCode` de la clé est calculé.
+Ensuite on applique à cette valeur l’opérateur modulo `%` avec la taille du tableau.
+Ainsi on obtient un index compris entre 0 et la taille du tableau (exclue).
+À cet index, si la cellule est vide, on insère une liste chaînée (`java.util.LinkedList`) avec comme seul élément la valeur.
+Si la cellule n’est pas vide, c’est qu’il y a collision, deux éléments ont un `hashCode` dont le modulo avec la taille du tableau est le même.
+Dans ce cas, on ajoute la valeur à la liste chaînée déjà présente.
+Quand le nombre d’entrées dans le tableau est supérieur à un certain seuil (le _load factor_, par défaut à 75%), un nouveau tableau du double de la taille précédente est créé et les valeurs y sont redistribuées.
+
+L’intérêt de cette technique est qu’accéder à une valeur par sa clé prendra toujours le même temps, quelle que soit la taille de la `HashMap`.
+Pour savoir si un élément est dans une liste, il faut la parcourir jusqu’à tomber sur l’élément en question ou la fin de la liste.
+Avec une `HashMap` on calculera le `hashCode` de l’élément à trouver, et en considérant qu’il n’y a pas de collision (en pratique il y en a peu), il suffit d’accéder à l’index du tableau correspondant.
+
+[source,java]
+----
+Map<String, Person> peopleByName = new HashMap<>();
+people.put("Martin", new Person("Martin", 59)); // <1>
+people.put("Alice", new Person("Alice", 32));
+people.put("Martin", new Person("Martin", 23)); // <2>
+
+Person martin = people.get("Martin"); // <3>
+
+int size = people.size(); // size = 2
+----
+<1> ajout d’une valeur de type `Person` associée à une clé de type `String`
+<2> remplacement de la valeur à la clé `"Martin"`
+<3> accès à une valeur par sa clé
+
+=== Streams
+
+Les streams, ou flux, sont inspirés de la programmation fonctionnelle qui tend à transformer des ensembles d’objets en d’autres ensembles d’objets grâce à des _fonctions_ simples et composables.
+
+Les streams en Java sont des pipelines de transformation qui implémentent l’interface générique `java.util.stream.Stream`.
+
+Un stream peut être obtenu de plusieurs façons, les plus fréquentes étant :
+
+* à partir de valeurs :
+[source,java]
+----
+Stream<Integer> ages = Stream.of(1, 4, 5, 4568);
+----
+* à partir d’une `Collection` :
+[source,java]
+----
+Set<String> names = Set.of("Donald", "Daisy");
+Stream<String> nameStream = names.stream();
+----
+* à partir d’un itérateur
+[source,java]
+----
+List<String> languages = List.of(
+        "Java",
+        "Kotlin",
+        "Scala",
+        "Go",
+        "Rust");
+Iterator<String> languageIterator = languages.iterator();
+Stream<String> languageStream = StreamSupport.stream(
+        Spliterators.spliteratorUnknownSize(
+                languageIterator,
+                Spliterator.ORDERED)
+        , false);
+----
+
+Un `Stream<T>` supporte principalement 3 façons d’appliquer des transformations :
+
+* `map`
+** transforme un ensemble d’objets en un nouvel ensemble de même taille
+** prend en paramètre une `Function<T, U>` transformant un objet de type `T` en un objet de type `U`
+** renvoie un nouveau `Stream<U>` en appliquant la fonction sur chacun des éléments
+** exemple :
+[source,java]
+----
+Set<Person> people = Set.of(
+        new Person("Donald", 32),
+        new Person("Daisy", 33)
+);
+Stream<Integer> ageStream = people.stream().map(p -> p.age);
+----
+
+image::stream_op_map.png[]
+
+* `filter`
+** transforme un ensemble d’objets en un nouvel ensemble de même taille ou de taille inférieure
+** prend en paramètre un `Predicate<T>` transformant un objet de type `T` en un `boolean`
+** renvoie un nouveau `Stream<T>` en ne gardant que les éléments pour lesquels le prédicat a renvoyé `true`
+[source,java]
+----
+Set<Person> people = Set.of(
+        new Person("Donald", 32),
+        new Person("Daisy", 33),
+        new Person("Riri", 10),
+        new Person("Fifi", 11),
+        new Person("Loulou", 12)
+
+);
+Stream<Person> adultStream = people.stream().filter(p -> p.age > 18);
+----
+
+image::stream_op_filter.png[]
+
+* `flatMap`
+** transforme un ensemble d’objets en un nouvel ensemble, la plupart du temps de taille supérieure
+** prend en paramètre une fonction `Function<T, Stream<U>>` transformant un objet de type `T` en un stream d’objets de type `U`
+** renvoie un nouveau `Stream<U>` étant la concaténation des streams résultant de l’application de la fonction à chacun des éléments.
+
+[source,java]
+----
+Set<Student> students = Set.of(
+        new Student("Alix", 12.2, 4.0, 14.0),
+        new Student("Ilian", 11.3, 18.5, 14.0),
+        new Student("Robin", 15.0, 0.0, 16.0)
+
+);
+Stream<Double> gradeStream = students.stream().flatMap(s -> s.grades.stream());
+----
+
+image::stream_op_flatmap.png[]
+
+<<<
+
+Afin de transformer un stream en collection, on utilise l’_opération terminale_ `collect`.
+Cette méthode prend en paramètre un `java.util.stream.Collector` dont les principales implémentations peuvent être construites grâce aux méthodes utilitaires de la classe `java.util.stream.Collectors`.
+
+À noter que les multiples transformations ajoutées sur un stream ne sont exécutées que si nécessaire et uniquement au moment de l’appel d’une opération terminale.
+
+Une _opération terminale_, telle que `count`, `collect`, `reduce`, etc. est une opération dont le retour nécessite l’application des transformations.
+Une fois une _opération terminale_ appelée sur un stream, celui-ci devient inutilisable.
+
+Par exemple :
+
+[source,java]
+----
+Set<Person> people = Set.of(
+        new Person("Donald", 32),
+        new Person("Daisy", 33),
+        new Person("Riri", 10),
+        new Person("Fifi", 11),
+        new Person("Loulou", 12)
+
+);
+Set<Person> adultStream = people.stream()
+                            .filter(p -> p.age > 18)
+                            .collect(Collectors.toSet()); // <1>
+----
+<1> construit un nouveau `HashSet` avec les deux éléments retenus par le prédicat
+
+Ou encore
+
+[source,java]
+----
+Set<Student> students = Set.of(
+        new Student("Alix", "3A", 12.2, 4.0, 14.0),
+        new Student("Ilian", "3A", 11.3, 18.5, 14.0),
+        new Student("Robin", "4A", 15.0, 0.0, 16.0)
+
+);
+double averageGrade = students.stream()
+        .filter(s -> "3A".equals(s.group))
+        .flatMap(s -> s.grades.stream())
+        .collect(Collectors.averagingDouble(Double::doubleValue)); // <1>
+----
+<1> Calcule la moyenne des notes des étudiants du groupe 3A
+
+=== Expressions Lambda
+
+En Java tout est objet, y compris les _fonctions_.
+
+Ainsi écrire
+
+[source,java]
+----
+Predicate<Student> groupPredicate = s -> "4A".equals(s.group);
+----
+
+revient à créer une instance d’une implémentation à la volée de l’interface `Predicate`.
+
+C’est fonctionnellement équivalent à :
+[source,java]
+----
+Predicate<Student> groupPredicate = new Predicate<Student>() { // <1>
+    @Override
+    public boolean test(Student s) {
+        return "4A".equals(s.group);
+    }
+};
+----
+<1> construction d’une classe anonyme, construction à la volée d’une instance d’une classe non nommée et dont l’usage est localisé au bloc où elle est définie
+
+Ou encore à :
+
+.Fichier GroupPredicate
+[source,java]
+----
+public class GroupPredicate implements Predicate<Student> {
+    @Override
+    public boolean test(Student s) {
+        return "4A".equals(s.group);
+    }
+}
+----
+
+[source,java]
+----
+Predicate<Student> groupPredicate = new GroupPredicate();
+----
+
+Cette écriture _raccourcie_ avec une flèche `->` est appelée _expression lambda_ ou _lambda function_.
+Le type d’une expression lambda doit être inféré par le compilateur et doit être spécifié au moment de sa création, soit par le type du paramètre d’une méthode, soit par le type d’une variable (comme dans notre précédent exemple).
+
+Le type d’une expression lambda ne peut être qu’une interface à une seule méthode _abstraite_.
+
+Afin de garantir cette spécificité, il est possible d’annoter une interface avec `@FunctionalInterface`.
+Annotée de la sorte une interface qui ne possède pas de méthode abstraite ou plus d’une méthode abstraite ne compilera pas.
+
+Il est également possible d’utiliser une référence de méthode comme fonction.
+Pour cela, le type de retour, le nombre et le type des paramètres doit correspondre, comme pour une expression lambda.
+On utilise l’opérateur `::` pour différencier cette écriture d’un appel de méthode classique.
+Par exemple :
+
+[source,java]
+----
+public double computeAverageGrade(Collection<Student> students, String group) {
+    return students.stream()
+        .filter(Objects::nonNull) // <1>
+        .filter(s -> group.equals(s.group))
+        .flatMap(s -> s.grades.stream())
+        .collect(Collectors.averagingDouble(Double::doubleValue));
+}
+----
+<1> on ne garde que les éléments non `null` de la collection passée en paramètre de la méthode
+
+Une référence de méthode peut également s’écrire avec une lambda, `.filter(Objects::nonNull)` est équivalent à `.filter(s -> Objects.nonNull(s))`.

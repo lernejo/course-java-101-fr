@@ -1,42 +1,41 @@
-= Document Title
-Doc Writer <doc@example.com>
+= Java 101
+Loïc Ledoyen <loic.ledoyen@gmail.com>
 :reproducible:
 :listing-caption: Listing
 :source-highlighter: rouge
+:hardbreaks-option:
 :toc:
-// Uncomment next line to add a title page (or set doctype to book)
-//:title-page:
-// Uncomment next line to set page size (default is A4)
-//:pdf-page-size: Letter
-
-An example of a basic http://asciidoc.org[AsciiDoc] document prepared by {author}.
+:title-page:
+:title-logo-image: image:logo.png[top=25%, align=center, pdfwidth=0.5in]
 
 <<<
 
-== Introduction
+include::chapters/introduction.adoc[]
 
-A paragraph followed by an unordered list{empty}footnote:[AsciiDoc supports unordered, ordered, and description lists.] with square bullets.footnote:[You may choose from square, disc, and circle for the bullet style.]
+:sectnums:
 
-[square]
-* item 1
-* item 2
-* item 3
+<<<
 
-== Main
+include::chapters/chapter-1.adoc[]
 
-Here's how you say "`Hello, World!`" in Prawn:
+<<<
 
-.Create a basic PDF document using Prawn
-[source,ruby]
-----
-require 'prawn'
+include::chapters/chapter-2.adoc[]
 
-Prawn::Document.generate 'example.pdf' do
-  text 'Hello, World!'
-end
-----
+<<<
 
-== Conclusion
+include::chapters/chapter-3.adoc[]
 
-That's all, folks!
+<<<
 
+include::chapters/chapter-4.adoc[]
+
+<<<
+
+include::chapters/chapter-5.adoc[]
+
+<<<
+
+:sectnums!:
+
+include::chapters/conclusion.adoc[]

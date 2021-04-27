@@ -1,0 +1,271 @@
+== Écosystème Java
+
+=== Maven
+
+**Maven** est un outil de construction de projet créé initialement pour Java.
+Il permet entre autres de déclarer ses dépendances, compiler le code, construire les binaires et lancer les tests.
+C’est aujourd’hui le plus utilisé dans l’écosystème Java.
+Il en existe d’autres qui sont moins répandus ou dédiés à un autre langage comme Gradle, SBT, Ivy, Bazel, Make, etc.
+
+Comme beaucoup d’outils de développement (frameworks, intégration continue, IDE, etc.), Maven repose sur une architecture modulaire.
+Dans cette architecture, le coeur d’exécution n’apporte que peu de fonctionnalités, mais propose une API pour venir ajouter des fonctionnalités par composition.
+
+Par défaut Maven suit un enchaînement de phases (lifecycle), auxquelles sont associées des plugins par défaut :
+
+image::maven_lifecycle.png[]
+
+Par exemple, associée à la phase **test**, c’est le _goal_ **test** du plugin **maven-surefire-plugin** qui est exécuté.
+Pour lancer cette phase, on écrira :
+
+[source,bash]
+----
+mvn test
+----
+
+Cette commande lancera toutes les phases précédentes, charge aux plugins de ne rien faire si le travail est déjà fait (compilation par exemple).
+
+Il s’agit d’un comportement par défaut.
+En effet, Maven fonctionne par _convention_ plutôt que par _configuration explicite_.
+Même s’il reste possible de configurer Maven pour sortir du comportement par défaut, la plupart des projets préfèrent la simplicité et profitent du même coup d’une structure similaire, ce qui facilite la lecture, et l’utilisation d’outils tiers comme les serveurs d’intégration continue, les solutions SAAS d’analyse statique, etc.
+
+Voici la structure d’un projet Maven :
+
+[source,bash]
+----
+pom.xml # <1>
+src/ # <2>
+|-- main/ # <3>
+|   |-- java/ # <4>
+|       |-- com/
+|           |-- mycompany/
+|               |-- App.java
+|-- test/ # <5>
+    |-- java/
+        |-- com/
+            |-- mycompany/
+                |-- AppTests.java
+target/ # <6>
+----
+<1> Le fichier **pom.xml** décrit toutes les spécificités du projet (coordonnées, scm, dépendances, plugins supplémentaires, etc.)
+<2> Le répertoire **src** contient le code _écrit_
+<3> le répertoire **main** contient le code de production, le code qui sera embarqué dans les binaires
+<4> le répertoire **java** contient le code _Java_, il est possible de faire cohabiter plusieurs languages dans des répertoires dédiés.
+Par exemple des fichiers *.kt dans un répertoire **kotlin** à côté du répertoire **java**
+<5> le répertoire **test** contient le code de test, ce code ne sera [.underline]#pas# embarqué dans les binaires
+<6> le répertoire **target** contient tous les fichiers que Maven va générer, les classes compilées, le résultat des tests, etc.
+Ce répertoire est généralement exclu du gestionnaire de code source (**.gitignore** pour Git)
+
+==== Anatomie d’un fichier POM simple
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.mycompany</groupId>
+    <artifactId>myproject</artifactId>
+    <version>0.0.1-SNAPSHOT</version> <!--1-->
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>16</maven.compiler.source>
+        <maven.compiler.target>16</maven.compiler.target> <!--2-->
+
+        <retrofit.version>1.2.3.4</retrofit.version> <!--3-->
+        <maven-source-plugin.version>1.2.3.4</maven-source-plugin.version>
+    </properties>
+
+    <dependencies>  <!--4-->
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>retrofit</artifactId>
+            <version>${retrofit.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>  <!--5-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven-source-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+----
+<1> groupId, artifactId et version forment les coordonnées uniques d’un projet quand celui-ci est publié dans un dépôt (Maven Central ou autre)
+<2> encodage et version du langage Java permettent de garantir que le code est modifié et compris de la même façon par les différentes parties prenantes (les développeurs et le serveur d’intégration continue)
+<3> versions des dépendances et plugins utilisés plus bas
+<4> bloc dans lequel on peut ajouter autant de **dépendances** que l’on souhaite en utilisant leurs coordonnées.
+Ici on ajoute une dépendance permettant de modéliser rapidement un client HTTP
+<5> bloc dans lequel on peut ajouter autant de **plugins** que l’on souhaite en utilisant leurs coordonnées.
+Ici on ajoute un plugin qui va générer un binaire contenant les _sources_ du projet
+
+Les dépendances sont les librairies tierces que l’on souhaite utiliser dans un projet, que ce soit dans le code de production ou le code de test.
+Les plugins sont quant à eux des mécaniques supplémentaires que l’on souhaite ajouter au cycle de vie du projet (génération de la documentation, création d’une image docker, analyse statique du code, etc.)
+
+=== JUnit
+
+Les tests sont une composante importante de la programmation.
+Ils permettent entre autres de :
+
+* vérifier le fonctionnement d’un bloc de code, maintenant et dans le futur
+* documenter, en montrant comment le code peut ou doit être utilisé
+* rassurer les autres membres d’une équipe de développement sur la qualité du code proposé
+
+Cependant, la librairie standard Java ne fournit pas d’API pour écrire des tests, ni de mécanisme pour les lancer indépendamment du programme.
+
+L’écriture de tests repose donc sur :
+
+* une API fournie par un framework tiers, JUnit est le plus populaire
+* un plugin pour le gestionnaire de projet capable d’exécuter le framework, **Surefire** dans le cas de Maven
+
+Ces spécificités sont traduites comme suit dans le fichier **pom.xml** :
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- omitted for concision -->
+
+    <properties>
+        <!-- omitted for concision -->
+
+        <junit.version>5.7.1</junit.version>
+        <assertj.version>3.19.0</assertj.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+    </properties>
+
+    <dependencies>
+        <!-- other dependencies can be added here -->
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope> <!--1-->
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId> <!--2-->
+            <version>${assertj.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version> <!--3-->
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
+----
+<1> déclaration de la dépendance JUnit en _scope_ **test**, elle ne sera pas disponible pour le code de production (dans **src/main/java**), uniquement pour le code de test (dans **src/test/java**)
+<2> déclaration d’une dépendance permettant d’écrire des vérifications (la plus populaire, mais d’autres existent)
+<3> surcharge de la version du plugin **Surefire** avec la dernière version, Maven 3 ne prenant pas la dernière version par défaut, et seules les dernières versions sont compatibles avec les dernières versions de JUnit
+
+En Java, les tests sont principalement représentés par des méthodes.
+Par défaut, le plugin **Surefire** va rechercher les méthodes de test dans les classes dont le nom fini par `Test`, `Tests` ou `TestCase`.
+
+Pour tester le code suivant :
+
+.Fichier src/main/java/com/lernejo/math/MathUtils.java
+[source,java]
+----
+package com.lernejo.math;
+
+public class MathUtils {
+
+    public int fact(int n) {
+        if (n < 0) {
+            throw new IllegalArgumentException("N cannot be negative");
+        }
+        return n == 0 ? 1 : n * fact(n - 1);
+    }
+}
+----
+
+On peut écrire cette classe de test :
+
+.Fichier src/test/java/com/lernejo/math/MathUtilsTest.java
+[source,java]
+----
+package com.lernejo.math;
+
+import org.assertj.core.api.Assertions; // <1>
+import org.junit.jupiter.api.Test;
+
+class MathUtilsTest {
+
+    private final MathUtils mathUtils = new MathUtils();
+
+    @Test // <2>
+    void fact_of_negative_number_throws() {
+        Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> mathUtils.fact(-1))
+                .withMessage("N cannot be negative"); // <3>
+    }
+
+    @Test
+    void fact_of_3_is_6() {
+        int result = mathUtils.fact(3);
+        Assertions.assertThat(result).isEqualTo(6); // <4>
+    }
+}
+----
+<1> _Import_ des classes publiques des dépendances de test
+<2> Une méthode de test est _marquée_ par une annotation afin de la différencier d’une méthode utilitaire ou interne au test.
+Le framework ne lancera que les méthodes identifiées comme des méthodes de test
+<3> Utilisation de la librairie de vérification pour s’assurer qu’une exception est levée quand on appelle la méthode avec un mauvais paramètre.
+On vérifie également le contenu du message d’erreur.
+<4> Utilisation de la librairie de vérification pour s’assurer que le résultat de `3!` est bien `6`.
+
+Une méthode de test a une structure bien précise :
+
+* **zero**, **une** ou **plusieurs** mises en condition initiale.
+Il s’agit généralement de constituer un jeu de données ou d’amener le système dans un certain état
+* **un unique** élément déclencheur.
+Il s’agit de l’appel au bloc de code que l’on souhaite tester.
+* **une** ou **plusieurs** vérifications sur l’état de sortie, que ce soit le retour de la méthode testée ou des données accessibles autrement (persistées en base de donnée par exemple)
+
+Dans le cas ou l’on souhaite écrire plusieurs tests similaires à l’exception du jeu de données, il est possible d’écrire des [.underline]#tests paramétrés# :
+
+[source,java]
+----
+@ParameterizedTest // <1>
+@CsvSource({ // <2>
+    "0, 1",
+    "1, 1",
+    "2, 2",
+    "3, 6",
+    "4, 24",
+    "13, 1932053504"
+})
+void fact_test_cases(int n, int expectedResult) { // <3>
+    int result = mathUtils.fact(n);
+    Assertions.assertThat(result).isEqualTo(expectedResult);
+}
+----
+<1> Marque la méthode comme test paramétré
+<2> Déclare les jeux de données à utiliser, la méthode sera appelée autant de fois que de jeux de donnée, ici 6 fois
+<3> Le framework se charge d’appeler la méthode avec les paramètres dans l’ordre où ils ont été déclarés

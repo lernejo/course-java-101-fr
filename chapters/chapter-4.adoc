@@ -1,0 +1,218 @@
+== Le langage Java, quatrième partie
+
+=== Thread
+
+Un thread ou, fil d’exécution, est le cadre dans lequel s’exécute séquentiellement un programme.
+Pour exécuter plusieurs tâches en parallèle, il faut donc créer plusieurs threads.
+Un thread (non virtuel) consomme des ressources :
+
+* de la mémoire
+* du CPU, ou plus exactement, de la capacité de l’OS à faire plusieurs tâches en parallèle
+
+En effet, il peut (et la plupart du temps il y a) plus de threads que de cœurs de calcul (CPUs).
+C’est donc à l’OS d’alterner entre la pause et l’execution des threads.
+Plus il y a de threads, et plus l’OS passe de temps (CPU) à coordonner, laissant de moins en moins de place aux threads eux-mêmes.
+
+En Java un thread est modélisé par la classe `java.lang.Thread` et possède un nom.
+Quand la JVM démarre, elle va créer (entre autres) le thread **main** qui exécutera la méthode `main`.
+
+Quand un thread n’a plus de travail à exécuter, il s’arrête, et peut être _garbage collecté_ si aucune variable ne pointe dessus.
+
+La JVM s’arrête quand il n’y a plus de threads actifs (hors `daemon`).
+Dans le cas d’un programme simple qui ne démarre pas de nouveaux threads, une fois la méthode `main` terminée, le thread main s’arrête, il n’y a plus de thread actif, par conséquence la JVM s’arrête.
+
+Dans le cas où des threads (hors `daemon`) ont été créés depuis le thread `main`, la JVM attendra qu’ils se terminent, même si le thread `main` est arrêté.
+
+==== Créer un nouveau thread
+
+Pour démarrer un nouveau thread, il est possible de créer un nouvel objet de ce type et le démarrer.
+
+[source,java]
+----
+Runnable action = () -> System.out.println("hello"); // <1>
+Thread t = new Thread(action, "my-super-thread-name");
+t.start();
+----
+<1> Une tâche à exécuter, implémentation de l’interface fonctionnelle `java.lang.Runnable`
+
+==== Maitriser sa consommation
+
+Comme on l’a vu, l’utilisation de thread n’est pas anodine pour une application.
+C’est pourquoi on choisit la plupart du temps de gérer ses threads au travers d’un mécanisme de recyclage : l’_object pool_.
+Ce patron de conception (design pattern) permet de définir une limite ou un comportement à un ensemble de ressources.
+Dans notre cas les ressources sont des threads, mais cela fonctionne également avec des connexions à une base de donnée (par exemple).
+
+[source,java]
+----
+ExecutorService threadPool = Executors.newFixedThreadPool(2); // <1>
+threadPool.submit(() -> System.out.print("hello "));
+threadPool.submit(() -> System.out.print("my "));
+threadPool.submit(() -> System.out.print("name "));
+threadPool.submit(() -> System.out.print("is "));
+threadPool.submit(() -> System.out.print("John ")); // <2>
+threadPool.awaitTermination(300L, TimeUnit.MILLISECONDS); // <3>
+threadPool.shutdown(); // <4>
+----
+<1> Création d’un _pool_ de 2 threads
+<2> On peut soumettre plus de tâches que de threads, elles seront stockées en mémoire et traitées dès que le _pool_ le pourra.
+Il n’y a pas de garantie d’ordre, le résultat d’un tel code n’est pas déterministe
+<3> Attente de la complétion de toutes les tâches envoyées au _pool_
+<4> Libération des ressources, les 2 threads sont _relâchés_ pour être _garbage collectés_
+
+==== Future
+
+Afin de suivre l’évolution d’une tâche soumise au _pool_, celui-ci renvoie un objet de type `java.util.concurrent.Future`.
+Dans le cas d’une tâche avec un type de retour, il est également possible de faire une attente bloquante sur le résultat d’une tâche en particulier.
+
+[source,java]
+----
+ExecutorService threadPool = Executors.newFixedThreadPool(2); 
+Future<Double> temperatureFuture = threadPool.submit(() -> callTemperatureWebSevice());
+Future<SunIntensity> sunFuture = threadPool.submit(() -> callSunshineWebSevice()); // <1>
+
+try {
+    Double temperature = temperatureFuture.get(200L, TimeUnit.MILLISECONDS); // <2>
+} catch (InterruptedException e) { // <3>
+    logger.error("Call to temp WS interrupted");
+} catch (ExecutionException e) { // <4>
+    logger.warn("Call to temp WS failed", e);
+} catch (TimeoutException e) { // <5>
+    logger.warn("Call to temp WS timed-out");
+}
+----
+<1> Les deux appels sont exécutés en parallèle
+<2> Attente bloquante de la complétion de la tâche **temperature**, on cas de succès on récupérera directement la valeur retournée par la méthode s’étant exécutée dans un autre thread
+<3> Exception survenant si le thread exécutant la tâche est interrompu
+<4> Exception survenant si une exception est levée par le code de la tâche
+<5> Exception survenant si la tâche n’est pas terminée après le délai spécifié (ici 200 ms)
+
+== SOLID
+
+Les principes SOLID ont été énoncés par Robert Cecil Martin (Uncle Bob) et leur respect permet un design modulaire dont le principe fondamental est le **découplage** entre les composants.
+
+Ce qu’on entend par découplage est la possibilité de faire un changement (ajout d’une fonctionnalité, correction d’un bug) localisé, sans impacter le reste du code.
+
+* S - Single responsibility : Une responsabilité par classe
+* O - Open / Close : ouvert à la composition, fermé à la modification
+* L - Liskov substitution : substitution par un sous-type sans modification de la cohérence
+* I - Interface segregation : une interface (contrat) différente par client
+* D - Dependency inversion : travailler avec la forme la plus abstraite d’un objet
+
+=== Exemple pour **S** et **L**
+
+.Fichier Logger.java
+[source,java]
+----
+public interface Logger {
+    void log(Level level, String message);
+}
+----
+
+.Fichier ConsoleLogger.java
+[source,java]
+----
+public class ConsoleLogger implements Logger {
+    @Override
+    public void log(Level level, String message) {
+        System.out.println("[" + level + "] " + message);
+    }
+}
+----
+
+.Fichier FileLogger.java
+[source,java]
+----
+public class FileLogger implements Logger {
+
+    private final Path path;
+
+    public FileLogger(Path path) {
+        this.path = path;
+    }
+
+    @Override
+    public void log(Level level, String message) {
+        try {
+            Files.writeString(path, "[" + level + "] " + message + "\n", StandardCharsets.UTF_8, CREATE, APPEND);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Cannot write log message to file: " + path, e);
+        }
+    }
+}
+----
+
+Les implémentations font une chose bien précise, plutôt que d’avoir une unique classe qui gère l’écriture dans la console et dans un fichier avec un `if`.
+
+Par ailleurs, remplacer une implémentation par une autre ne change rien pour le code qui utilise l’interface `Logger`.
+
+=== Exemple pour **O** et **D**
+
+.Fichier CompositeLogger.java
+[source,java]
+----
+public class CompositeLogger implements Logger {
+
+    private final Iterable<Logger> delegates;
+
+    public CompositeLogger(Logger... loggers) {
+        this.delegates = Arrays.asList(loggers);
+    }
+
+    @Override
+    public void log(Level level, String message) {
+        delegates.forEach(l -> l.log(level, message));
+    }
+}
+----
+
+Ici pour profiter de fonctionnalités de plusieurs composants, on ne va pas modifier les composants eux-mêmes, mais plutôt les composer.
+On pourra par la suite ajouter de nouveaux comportements (logger vers un broker ou une base de données par exemple) sans modifier, ni les composants existants, ni la logique de composition (ouvert à la composition, fermé à la modification).
+
+Par ailleurs, on utilise la forme la plus abstraite nécessaire, ici l’interface `Logger` plutôt que des implémentations précises.
+Ainsi le comportement générique peut s’appliquer à tous les sous-types.
+
+=== Exemple pour **I**
+
+.Fichier Vehicule.java
+[source,java]
+----
+public interface Vehicule {
+
+    void startMoving();
+}
+----
+
+.Fichier Container.java
+[source,java]
+----
+public interface Container {
+
+    void addItem(Item item);
+}
+----
+
+.Fichier Car.java
+[source,java]
+----
+public class Car implements Vehicule, Container {
+
+    private final List<Item> trunk;
+
+    @Override
+    public void startMoving() {
+        startEngine();
+        pressAccelerator();
+    }
+
+    @Override
+    public void addItem(Item item) {
+        trunk.add(item);
+    }
+}
+----
+
+La classe `Car` se comporte à la fois comme un véhicule, mais également comme un conteneur, de part sa capacité à stocker des objets dans son coffre.
+
+Cependant les classes intéressées par la capacité d’une voiture à se déplacer ne sont pas forcément les mêmes que celles intéressées par le fait de pouvoir stocker des objets dedans.
+
+On peut donc choisir d’implémenter plusieurs interfaces, chacune en lien avec un domaine différent, laissant la possibilité au code appelant de travailler avec une version plus abstraite et de décrire des comportements plus génériques.
