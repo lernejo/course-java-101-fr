@@ -1,0 +1,410 @@
+== Le langage Java, deuxième partie
+
+=== Formes conditionnelles
+
+==== if / else if / else
+
+Le mot clé `if` permet d’exécuter de manière conditionnelle un bloc de code.
+Celui-ci prend en paramètre une expression dont le résultat est de type `boolean`.
+
+On peut chainer les exécutions conditionnelles avec le mot clé `else`.
+
+Par exemple :
+
+[source,java]
+----
+if (a == 1) {
+    // ... // <1>
+} else if (b == 2) {
+    // ... // <2>
+} else {
+    // ... // <3>
+}
+----
+<1> ce bloc sera exécuté si `a` vaut 1
+<2> ce bloc sera exécuté si `a` ne vaut pas 1 *et* que `b` vaut 2
+<3> ce bloc sera exécuté si `a` ne vaut pas 1 *et* que `b` ne vaut pas 2
+
+==== switch
+
+Dans le cas d’une condition determinée sur la base d’une seule variable, on peut utiliser les mots-clés `switch` et `case` :
+
+[source,java]
+----
+switch(a) {
+    case 1:
+        // ... // <1>
+        break; // <2>
+    case 45:
+        // ... // <3>
+    default:
+       // ... // <4>
+}
+----
+<1> ce bloc sera exécuté si `a` vaut 1
+<2> mot-clé permettant de sortir du `switch`
+<3> ce bloc sera exécuté si `a` vaut 45
+<4> ce bloc sera exécuté si `a` ne vaut pas 1
+
+Le problème de cette écriture est qu’il est facile d’oublier le mot-clé `break` et d’introduire un bug dans lequel plusieurs branches seront exécutées.
+Dans notre exemple, si la valeur de `a` est 45, le `case` correspondant sera exécuté, ainsi que le bloc `default`.
+
+Pour remédier à cela il existe une seconde écriture, dite _expression switch_ :
+
+[source,java]
+----
+String label = switch (experience) {
+    case 1, 2 -> {
+        System.out.println("case 1 and 2");
+        yield "Beginner and junior";
+    }
+    case 3, 4 -> "Experienced and senior";
+    case 5    -> "Expert";
+    default   -> throw new IllegalArgumentException("invalid value");
+};
+----
+
+Avec cette syntaxe, pas de `break`, c’est la valeur à droite de la flèche `->` qui est retournée, il n’y a donc plus d’ambiguïté.
+Dans le cas où la logique prend plus d’une expression, on indique la valeur à retourner avec le mot-clé `yield`.
+
+==== Opérateur ternaire
+
+L’opérateur ternaire permet d’écrire un bloc `if` à deux branches de manière simple :
+`int a = "toto".equals(b) ? 3 : 0;`
+est équivalent à
+
+[source,java]
+----
+int a;
+if ("toto".equals(b)) {
+    a = 3;
+} else {
+    a = 0;
+}
+----
+
+=== Boucles
+
+==== for
+
+Une boucle `for` est une boucle dans laquelle on accède à l’index de l’itération courante.
+
+[source,java]
+----
+for (int index = 1; index < 4; index++) { // <1>
+    System.out.println(index); // 2
+}
+----
+<1> déclaration d’une variable `index` qui prendra les valeurs de 1 à 4 exclus avec un pas de 1
+<2> cette ligne sera exécutée 3 fois avec les valeurs d’`index` 1, 2 et 3
+
+==== for each
+
+Les boucles `for` peuvent être utilisée pour parcourir les élèments d’un tableau ou d’une _collection_.
+Ainsi on peut écrire :
+
+[source,java]
+----
+String[] names = new String[] {"Jake", "Rosa", "Raymond", "Gina"};
+for (int index = 1; index < names.length; index++) {
+    String name = names[index];
+    System.out.println(name.toLowerCase());
+}
+----
+
+Ici l’index n’est pas utilisé directement, c’est un moyen d’accéder à chacune des valeurs du tableau.
+Il est plus idiomatique dans ce cas d’utiliser un boucle _for each_ :
+
+[source,java]
+----
+String[] names = new String[] {"Jake", "Rosa", "Raymond", "Gina"};
+for (String name : names) { // <1>
+    System.out.println(name.toLowerCase());
+}
+----
+<1> la variable `name` va pointer successivement sur tous les élèments du tableau
+
+On peut mettre dans l’opérande de droite d’un _for each_ un tableau ou tout objet implémentant l’interface `java.lang.Iterable`.
+Cette interface est l’expression minimale dont a besoin un ensemble d’objets (telle qu’une liste) pour être parcouru.
+
+==== while
+
+Les boucles `while` permettent d’exécuter un bloc de code tant qu’une expression est _vraie_.
+
+.Fichier TcpServer.java
+[source,java]
+----
+public class TcpServer {
+
+    private boolean acceptingConnection = false;
+
+    public void syncStart() throws IOException {
+        ServerSocket serverSocket = new ServerSocket(9876);
+        acceptingConnection = true;
+        while (acceptingConnection) { // <1>
+            Socket socket = serverSocket.accept();
+            // ... handle the socket
+        }
+    }
+
+    public void stop() {
+        acceptingConnection = false;
+    }
+}
+----
+<1> la boucle va recommencer tant que la variable `acceptingConnection` sera _vraie_.
+
+==== do while
+
+Dans le cas où l’évaluation de la condition nécessite d’être faite à l’issue de l’exécution du bloc, il est possible d’utiliser une boucle `do while`.
+
+.Fichier TcpServer.java
+[source,java]
+----
+public class MeteoWebServiceCaller {
+
+    private final MeteoHttpClient client;
+
+    public MeteoWebServiceCaller(MeteoHttpClient client) {
+        this.client = client;
+    }
+
+    public double getTemperatureWithRetry() throws IOException {
+        NetworkFailureException error = null; // <1>
+        int tryCount = 0;
+        do {
+            try {
+                return client.getTemperature(); // <2>
+            } catch (IOException e) { // <3>
+                error = e;
+                tryCount++;
+            }
+        } while (error != null && tryCount < 4); // <4>
+        throw error; // <5>
+    }
+}
+----
+<1> la variable `error` est initialisée avec `null`, c’est-à-dire qu’elle ne pointe vers aucune adresse mémoire
+<2> si la méthode `getTemperature` ne renvoie pas d’erreur, on sort de la méthode `callWebService` en retournant le résultat
+<3> si la méthode `getTemperature` renvoie une erreur de type `IOException`, alors on affecte l’erreur à la variable `error` et on incrémente la valeur de la variable `tryCount` de 1
+<4> le bloc `do` est recommencé s’il y une erreur et que le compteur `tryCount` est inférieur à 4
+<5> si l’exécution arrive ici, c’est qu’il y a eu une erreur, et on lance la dernière stockée dans la variable `error`
+
+==== break et continue
+
+Dans toutes les boucles il est possible d’utiliser les mots-clés `break` et `continue`.
+
+L’instruction `break` permet de sortir immédiatement de la boucle.
+
+L’instruction `continue` permet de stopper l’exécution de l’itération courante et de passer à la prochaine, s’il y en a une.
+
+=== Exceptions
+
+Les exceptions en Java sont une des deux formes de retour d’une méthode.
+Celle-ci peut se terminer en succès et renvoyer une donnée (rien si sont type de retour est `void`) ou _lancer_ une erreur.
+
+Une erreur remonte la pile d’appel jusqu’à être interceptée.
+Si elle n’est jamais interceptée, elle provoque l’arrêt du thread.
+Dans le cas du thread principal (découlant de la fonction `main`), c’est l’application qui s’arrête.
+
+Pour lancer une erreur, on utilise le mot-clé `throw`.
+Le mot-clé `throws` (avec un `s`) lui permet de déclarer qu’une méthode est susceptible de lancer un certain nombre d’erreurs.
+Par exemple :
+
+.Fichier MathUtils.java
+[source,java]
+----
+public class MathUtils {
+    public int divide(int dividend, int divisor) throws IllegalArgumentException { // <1>
+        if (divisor == 0) {
+            throw new IllegalArgumentException("Cannot divide by 0"); // <2>
+        }
+        return dividend / divisor;
+    }
+}
+----
+<1> la méthode `divide` déclare qu’elle peut lancer une erreur de type `IllegalArgumentException`
+<2> si le second paramètre de la méthode est 0, une erreur est lancée
+
+Pour intercepter des erreurs, on utilise un bloc `try catch`.
+Par exemple :
+
+.Fichier Launcher.java
+[source,java]
+----
+public class Launcher {
+    public static void main(String[] args) {
+        int dividend = Integer.parseInt(args[0]);
+        int divisor = Integer.parseInt(args[1]);
+        try { // <1>
+            int result = new MathUtils().divide(dividend, divisor);
+            System.out.println(result); // <2>
+        } catch (IllegalArgumentException e) { // <3>
+            System.out.println("An error has occurred: " + e.getMessage()); // <4>
+        }
+    }
+}
+----
+<1> déclaration d’un bloc `try`
+<2> cette ligne n’est pas exécutée si une erreur est lancée par la ligne précédente
+<3> intercepte les erreurs de type `IllegalArgumentException` lancées dans le bloc `try` associé
+<4> accès au message de l’erreur, on l’occurence : `Cannot divide by 0`;
+
+Toutes les erreurs pouvant être _lancées_ implémentent l’interface `java.lang.Throwable`.
+Cette interface est implementée par 3 classes majeures, qui spécialisent leurs classes enfants :
+
+* `java.lang.Error` : les erreurs graves qui sont du ressort de la JVM et non de l’application. Il est conseillé de ne pas intercepter ces erreurs
+* `java.lang.Exception` : exceptions dites _checked_. Il s’agit d’erreurs applicatives dont la possibilité doit être déclarée par la méthode. Cette déclaration se fait au niveau de la signature de la méthode au moyen du mot-clé `throws`. La compilation échouera si une méthode ne déclare pas une exception mais que le code à l’intérieur est susceptible de la produire. Exemple d’une de ces erreurs : `java.io.IOException` témoignant d’un problème IO (entrée / sortie), lecture d’un fichier impossible, erreur réseau, etc.
+* `java.lang.RuntimeException` : exceptions dites _unchecked_. Il s’agit d’erreurs applicatives dont la possibilité peut ne pas être déclarée par la méthode. Il est cependant recommandé de documenter cette possibilité en rajoutant l’exception dans la signature de la méthode. Exemple d’une de ces erreurs : `java.lang.IllegalArgumentException` témoignant du mauvais usage d’une méthode.
+
+=== Interfaces
+
+Les interfaces sont des contrats d’objet composables.
+Ce contrat contient des signatures de méthodes qu’un objet concret doit définir s’il l’implémente.
+Ainsi une interface n’a ni état, ni méthodes concrètes.
+Les champs d’une interface sont implicitement `public`, `static` et `final`, c’est-à-dire qu’il s’agit de constantes.
+Toutes les méthodes abstraites sont quant à elles implicitement `public`.
+On ne peut pas instancier une interface, mais on peut utiliser l’utiliser comme type de champ, de paramètre ou de variable.
+
+Les interfaces permettent d’abstraire l’[.underline]#utilisation# de l’[.underline]#implémentation#.
+
+L’intérêt de cette abstraction est de pouvoir substituer une implémentation par une autre sans avoir à changer le code qui l’utilise.
+Par exemple :
+
+.Fichier Animal.java
+[source,java]
+----
+public interface Animal {
+    String name();
+
+    String makeACry();
+
+    FeedingStatus feed(String foodType);
+
+    enum FeedingStatus { // <1>
+        ACCEPTED,
+        REFUSED,
+    }
+}
+----
+<1> un type déclaré dans une interface sera implicitement `public` et `static`
+
+.Fichier Lion.java
+[source,java]
+----
+public class Lion implements Animal {
+    @Override // <1>
+    public String name() { // <2>
+        return "Lion";
+    }
+
+    @Override
+    public String makeACry() {
+        return "Groarrrr";
+    }
+
+    public FeedingStatus feed(String foodType) {
+        return "meat".equals(foodType) ? FeedingStatus.ACCEPTED : FeedingStatus.REFUSED;
+    }
+}
+----
+<1> annotation précisant qu’il s’agit d’une surcharge, optionnelle
+<2> le mot-clé `public` est nécessaire ici, il n’est pas implicite dans une classe
+
+.Fichier Cow.java
+[source,java]
+----
+public class Cow implements Animal {
+    @Override
+    public String name() {
+        return "Cow";
+    }
+
+    public String makeACry() {
+        return "Meuuuuh";
+    }
+
+    public FeedingStatus feed(String foodType) {
+        return "grass".equals(foodType) ? FeedingStatus.ACCEPTED : FeedingStatus.REFUSED;
+    }
+}
+----
+
+.Fichier Launcher.java
+[source,java]
+----
+public class Launcher {
+    public static void main(String[] args){
+        List<Animal> animals = List.of(
+            new Lion(),
+            new Cow()
+        );
+
+        String foodType = "meat";
+        for (Animal animal : animals) { // <1>
+            System.out.println("The" + animal.name() + " makes " + animal.cry());
+            final String eatSentence;
+            if (FeedingStatus.ACCEPTED == animal.feed(foodType)) {
+                eatSentence = "eats";
+            } else {
+                eatSentence = "refuses to eat";
+            }
+            System.out.println("It " + eatSentence + " " + foodType);
+        }
+    }
+}
+----
+<1> seul le concept d’`Animal` est manipulé ici, nous garantissant que tous les objets implémentant cette interface ont les méthodes `name`, `cry` et `feed`
+
+==== Méthodes concrètes
+
+Une interface peut posséder des méthodes _concrètes_ statiques, souvent utilisées comme méthodes utilitaires.
+
+Une interface peut également posséder des méthodes _concrètes_ par défaut.
+Il s’agit la plupart du temps de comportements reposant sur d’autres méthodes abstraites permettant d’apporter une fonctionnalité de manière transverse à toutes les classes implémentant cette interface.
+
+L’intérêt de cette approche est que cet ajout de fonctionnalité, contrairement à l’utilisation d’une classe abstraite, garde une caractéristique principale des interfaces : la composition.
+
+En effet, un objet peut implémenter plusieurs interfaces.
+
+.Fichier Animal.java
+[source,java]
+----
+public interface Animal {
+    String name();
+
+    default String formattedName() { // <1>
+        return name().substring(0, 1).toUpperCase() + name().substring(1).toLowerCase();
+    }
+}
+----
+<1> méthode disponible sur tous les objets implémentant cette interface, peu importe la manière dont la méthode abstraite `name` est implémentée
+
+=== Classes abstraites
+
+Si une classe peut implémenter plusieurs interfaces, elle ne peut hériter que d’une seule classe parente.
+On parle alors d’héritage, et l’héritage multiple n’existe pas en Java.
+On oppose le concept de composition, plus souple, au concept d’héritage, souvent décrié car peu évolutif.
+
+Une classe concrète peut hériter d’une classe abstraite en implémentant toutes ses méthodes abstraites.
+Une classe abstraite peut donc avoir des méthodes concrètes, mais aussi des méthodes abstraites, à l’instar d’une interface.
+
+Par exemple :
+
+.Fichier Animal.java
+[source,java]
+----
+public abstract class Animal {
+    protected final String name;
+
+    protected Animal(String name) {
+        this.name = name;
+    }
+
+    public String formattedName() {
+        return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+    }
+
+    public abstract FeedingStatus feed(String foodType);
+}
+----

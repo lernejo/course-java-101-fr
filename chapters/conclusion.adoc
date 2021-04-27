@@ -1,0 +1,13 @@
+== Conclusion
+
+Ce cours vous a permis de voir un panel des fonctionnalités du langage Java ainsi qu’un aperçu de l’écosystème qui l’entoure.
+
+Il reste bien d’autres choses à explorer, que ce soit dans le langage lui-même, avec l’introspection, les proxys dynamiques, les plugins de compilateur (APT), etc. ou dans l’écosystème qui l’entoure, avec les tests par mutation, la génération de la documentation vivante, l’analyse de code statique et dynamique...
+
+Mais cette histoire sera pour une prochaine fois.
+
+==== Pour aller plus loin
+
+* La bible de JM Doudoux : https://www.jmdoudoux.fr/accueil_java.htm
+* Les vidéos de José Paumard : https://www.youtube.com/c/coursenlignejava/videos
+* Une description des types de couplage : https://connascence.io/

@@ -1,0 +1,592 @@
+== Le langage Java, première partie
+
+=== Point d’entrée d’un programme Java
+
+Un programme java a un unique point d’entrée qui sera utilisé pour le lancer.
+
+Ce point d’entrée, la fonction `main` est une méthode publique, statique, sans type de retour et prenant en paramètre un tableau de chaîne de caractères :
+
+.Fichier Launcher.java
+[source,java]
+----
+public class Launcher { // <1>
+    public static void main(String[] args) { // <2>
+        System.out.println("Hello " + (args.length > 0 ? args[0] : "World")); // <3>
+    }
+}
+----
+<1> La classe contenant la fonction `main` doit être publique
+<2> la _signature_ de la méthode doit être exacte, si elle n’est pas statique ou publique ou que les paramètres ne sont pas un unique tableau de chaîne de caractères, la fonction ne sera pas reconnue
+<3> du code _procédural_ peut être écrit à l’intérieur de cette méthode, en Java, les instructions doivent se terminer par un point-virgule `;`
+
+Le paramètre de la fonction `main` correspond aux arguments passés au programme.
+
+Par exemple :
+
+[source,bash]
+----
+javac Launcher.java # <1>
+jar -cf helloWorld.jar Launcher.class # <2>
+java -jar helloWorld.jar Launcher Lernejo # Will display ’Hello Lernejo’ # <3>
+----
+<1> compilation, cela va produire le fichier Launcher.class contenant du _byte code_
+<2> création d’une archive Java contenant l’unique classe compilée
+<3> execution du programme, Java va chercher une fonction `main` dans la classe `Launcher` qui lui est indiquée comme point d’entrée, le tableau `args` aura une unique entrée, le seul paramètre qui est passé au programme : `"Lernejo"`
+
+<<<
+
+=== Les types
+
+En Java il existe deux formes de type, les types *_primitifs_* et les types objets.
+
+Les premiers commencent par une minuscule et représentent directement la donnée en mémoire :
+
+|===
+|Nom | Nombre de bits | Valeurs possibles | Exemple
+
+|boolean |32 (un `int` avec 0 ou 1 comme valeur) |true ou false | true
+
+|byte |8 |entier positif ou négatif |
+
+|short |16 |entier positif ou négatif | 32
+
+|int |32 |entier positif ou négatif | 1452
+
+|long |64 |entier positif ou négatif | 164478945
+
+|float |32 |IEEE 754 | 124.54
+
+|double |64 |IEEE 754 | 124587451.1254878
+
+|char |16 |Unicode | 'h'
+|===
+
+Les seconds sont des objets et leurs noms commencent par une majuscule.
+
+[IMPORTANT]
+====
+C’est pourquoi il est important, quand on crée un nouveau type (classe, interface, enum ou record) que son nom commence par une *[.underline]#Majuscule#*.
+====
+
+=== Les variables
+
+Au sein d’une méthode, il est souvent nécessaire de stocker un résultat intermédiaire dans une variable.
+
+En Java, une variable est en fait un référant, un "pointeur" vers une adresse mémoire.
+
+Ainsi en écrivant `var b = a;`, on déclare un second référant `b` qui pointe vers la même adresse mémoire que `a`.
+
+En Java, il est possible de déclarer une variable de plusieurs façons.
+
+* `String a;` : la variable n’est pas assignée, elle ne pointe vers rien, il est nécessaire de lui assigner une valeur afin de pouvoir l’utiliser par la suite.
+Par exemple : `a = "my-name";`
+* `int a = 43;` : la variable est déclarée et assignée, elle peut être utilisée, sa valeur peut également être changée.
+Par exemple : `a++;`
+* `final MyType a;` : la variable n’est pas assignée, mais grâce au mot-clé `final`, le compilateur va garantir qu’elle ne le sera qu’une unique fois.
+Par exemple :
+
+.Fichier NameGenerator.java
+[source,java]
+----
+public class NameGenerator {
+    public String generateName(FacialHairStyle hairStyle) {
+        final String name;
+        if(Gender.BEARDED == hairStyle) {
+            name = "Barbarossa";
+        } else if(Gender.MUSTACHE == hairStyle) {
+            name = "Jenkins";
+        } else {
+            name = "Saitama";
+        }
+        return name;
+    }
+}
+----
+
+* Enfin, il est également possible d’utiliser le mot-clé `var` si le type de la variable peut être _inféré_ au moment de sa déclaration.
+Cet usage est à recommander aux endroits où la longueur d’un type diminue la lisibilité.
+Par exemple :
+
+.Fichier OccurrenceUtils.java
+[source,java]
+----
+public class OccurrenceUtils {
+    public Optional<String> mostOccurring(List<String> strings) {
+        Map<String, Long> freqMap = strings.stream()
+            .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
+        Optional<Map.Entry<String, Long>> maxEntryOpt = freqMap.entrySet()
+            .stream()
+            .max(Map.Entry.comparingByValue());
+        return maxEntryOpt.map(Map.Entry::getKey);
+    }
+}
+----
+
+Peut être simplifié :
+
+.Fichier OccurrenceUtils.java
+[source,java]
+----
+public class OccurrenceUtils {
+    public Optional<String> mostOccurring(List<String> strings) {
+        var freqMap = strings.stream()
+            .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
+        var maxEntryOpt = freqMap.entrySet()
+            .stream()
+            .max(Map.Entry.comparingByValue());
+        return maxEntryOpt.map(Map.Entry::getKey);
+    }
+}
+----
+
+<<<
+
+=== Opérateurs
+
+Il existe plusieurs opérateurs en Java.
+
+Opérateurs de calculs :
+
+|===
+| Opérateur | Description | Exemple
+| + | Additionne deux nombres ou concatène deux chaînes de caractères | 1 + a
+| - | Soustrait deux nombres | 8 - a
+| * | Multiplie deux nombres | b * 4
+| / | Divise deux nombres | a / 2
+| % | Modulo (reste de la division entière) | a % 3
+|===
+
+Les opérateurs d’assignations stockent le résultat du calcul dans l’opérande de gauche :
+
+|===
+| Opérateur | Description | Exemple
+| += | Additionne deux nombres ou concatène deux chaînes de caractères | a += "toto"
+| -= | Soustrait deux nombres | a -= 3.2
+| /= | Multiplie deux nombres | b /= 2
+| *= | Divise deux nombres | a *= 2
+|===
+
+Les opérateurs d’assignations peuvent être écrits avec les opérateurs de calculs.
+Par exemple `b /= 2;` est équivalent à `b = b / 2;`.
+
+Les opérateurs d’incrémentation peuvent être placés à gauche ou à droite d’une variable de façon à ce que l’opération soit réalisée avant ou après l’exploitation du résultat.
+
+Par exemple, dans `array[++i] = 0 ;`, c’est la valeur de `i` _[.underline]#après#_ l’incrémentation qui est utilisée comme index du tableau.
+A contrario, dans `array[i--] = 0 ;`, c’est la valeur de `i` _[.underline]#avant#_ la décrémentation qui est utilisée comme index du tableau.
+
+Les opérateurs de comparaison, renvoient vrai si...
+
+|===
+| Opérateur | Description | Exemple
+| == | ... les deux valeurs ont la même adresse mémoire | a == 3
+| != | ... les deux valeurs n’ont pas la même adresse mémoire | a != 3
+| <  | ... le nombre de gauche est plus petit (strictement) que celui de droite | a < 3
+| <= | ... le nombre de gauche est plus petit ou égal à celui de droite | a <= 3
+| >  | ... le nombre de gauche est plus grand (strictement) que celui de droite | a > 3
+| >= | ... le nombre de gauche est plus grand ou égal à celui de droite | a >= 3
+|===
+
+Certains opérateurs logiques peuvent s’appliquer sur les entiers, auxquels cas ils fonctionnent bit à bit.
+
+|===
+| Opérateur | Description | cible | Exemple
+| &&   | AND | boolean | a && b
+| \|\| | OR  | boolean | a \|\| b
+| &    | AND | boolean et entiers | a & b
+| \|   | OR  | boolean et entiers | a \| b
+| ^    | XOR | boolean et entiers | a ^ b
+|===
+
+Les opérateurs de décalage de bit :
+
+|===
+| Opérateur | Description | Propagation du signe | Exemple
+| <<  | Décale les bits vers la gauche (multiplie par 2 à chaque décalage).
+Les bits qui sortent à gauche sont perdus, et des zéros sont insérés à droite | oui |6 << 2
+| <<  | Décale les bits vers la droite (divise par 2 à chaque décalage).
+Les bits qui sortent à droite sont perdus, et le bit non-nul de poids plus fort est recopié à gauche | oui |6 >> 2
+| >>> | Décale les bits vers la droite (divise par 2 à chaque décalage).
+Les bits qui sortent à droite sont perdus, et des zéros sont insérés à gauche | non | 6 >>> 2
+|===
+
+L’opérateur `instanceof` renvoit vrai si le type de l’objet testé, est égal à, ou égal à un sous-type de, l’opérande de droite.
+Par exemple :
+
+[source,java]
+----
+if (a instanceof ArrayList) {
+    // ... // <1>
+}
+----
+
+<1> l’execution entrera dans le bloc si l’objet pointé par la variable `a` est de type `ArrayList` ou d’un sous-type d’ `ArrayList`
+
+=== Nommage
+
+Le nommage a un intérêt prépondérant dans le paradigme objet où le développeur essaie d’exprimer des concepts réels.
+Les classes, les champs, les méthodes, les variables, tous doivent avoir un nom clair et représentatif du rôle que joue le composant.
+Les noms peuvent être relativement longs sans que ce soit un problème.
+La convention en Java est le `camelCase` de manière générale, l’ `UpperCamelCase` pour les types (nom de classe, d’interface, d’enum ou de record).
+On peut également trouver/utiliser le `lower_snake_case` pour les noms des méthodes de test.
+
+=== Annotations
+
+Les annotations sont des _marqueurs_ qu’il est possible de placer à différents endroits afin
+
+* de marquer un morceau de code visuellement sans que cela ait un impact sur le comportement du code
+* déclencher un comportement à la compilation / construction
+* déclencher un comportement en _runtime_ (durant l’exécution)
+
+Java fournit entre autre l’annotation `@Override` qui permet de déclarer une méthode comme étant une surcharge d’une méthode parente.
+Si jamais il n’existe pas (ou plus) une telle méthode parente, cela provoquera une erreur de compilation.
+
+.Fichier Watchable.java
+[source,java]
+----
+public interface Watchable {
+
+    String name();
+}
+----
+
+.Fichier Movie.java
+[source,java]
+----
+public class Movie implements Watchable { // <1>
+    public final String name;
+
+    public Movie(String name) {
+        this.name = name;
+    }
+
+    @Override // <2>
+    public String name() {
+        return name;
+    }
+}
+
+
+
+----
+<1> La classe `Movie` déclare qu’elle _implémente_ l’interface `Watchable`
+<2> l’annotation ici déclare la méthode `name` comme étant la surcharge d’une définition dans la hiérarchie de la classe.
+Supprimer la méthode de l’interface, ou enlever la référence à l’interface provoquera une erreur de compilation.
+
+Ce mécanisme est utile lorsqu’on implémente ou surcharge une méthode définie dans la bibliothèque standard ou dans une bibliothèque tierce.
+Faire une mise à jour de la bibliothèque en question peut changer les définitions connues, et dans ce cas la compilation permet d’identifier qu’il y a quelque-chose à adapter.
+
+=== Les Objets
+
+Un objet est constitué de données (son état) *[.underline]#et#* de comportements.
+
+L’état est représenté par des champs, et le comportement par des méthodes.
+
+Un objet est une instance de classe.
+
+==== Anatomie d’une classe
+
+.Fichier Cat.java
+[source,java]
+----
+package com.lernejo.animals; // <1>
+
+import java.util.Random; // <2>
+
+public class Cat { // <3>
+    private boolean sleeping; // <4>
+
+    public boolean tryToWakeUp() { // <5>
+        if (!sleeping) {
+            throw new IllegalStateException("The cat is already awake");
+        }
+        sleeping = new Random().nextBoolean();
+        return sleeping;
+    }
+}
+----
+<1> package
+<2> imports
+<3> définition de la classe `Cat`, son contenu commence après l’accolade ouvrante et se termine avant la dernière accolade fermante
+<4> champs
+<5> méthodes
+
+Le package (équivalent du namespace en C++ ou C#) dans lequel se trouve la classe est une façon d’organiser son code afin :
+
+* de ne pas avoir des milliers de fichiers dans le même répertoire
+* de faire cohabiter des objets de même nom dans des contextes différents, par exemple
+** `org.junit.jupiter.api.Assertions` classe utilitaire fournie par la bibliothèque JUnit
+** `org.assertj.core.api.Assertions` classe utilitaire fournie par la bibliothèque AssertJ
+
+[NOTE]
+====
+La concaténation du package et du nom de la classe est appelé chemin qualifié.
+
+Une classe doit être dans une hiérarchie de répertoires correspondante au package déclaré en entête.
+C'est-à-dire que la classe ci-dessus doit être compilée comme ceci : `javac com/lernejo/animals/Cat.java`
+====
+
+Les imports, permettent d’utiliser des types qui ne sont pas dans le même package ou dans le package `java.lang`.
+Accompagné du mot clé `static` (`import static ...`), un import permet d’utiliser une méthode statique sans avoir à la préfixer par la classe la contenant.
+
+Les champs contiennent l’état de l’objet.
+Ils sont la plupart du temps `private` afin de pas être accessibles à l’extérieur de la classe qui les déclare.
+
+Ils peuvent être également `final` si leur état ne doit pas changer après la construction de l’objet.
+Un objet dont tous les champs sont `final` est dit _immutable_.
+
+Les méthodes d’un objet représentent son comportement.
+Leur visibilité peut être changée, afin de structurer le code.
+Une méthode a un unique type de retour, qui peut être `void` dans le cas où la méthode ne retourne pas de donnée à la suite de son exécution.
+Une méthode peut également prendre zéro, un ou plusieurs paramètres.
+Le nombre de lignes d’une méthode doit être raisonnable afin que sa compréhension puisse se faire rapidement.
+
+==== Constructeurs
+
+.Fichier Cat.java
+[source,java]
+----
+public class Cat {
+    public final String name; // <1>
+
+    public Cat(String name) { // <2>
+        this.name = name; // <3>
+    }
+}
+----
+<1> Ici le champ est `public`, mais `final`, donc il n’est pas modifiable une fois l’objet créé
+<2> un constructeur prenant un paramètre de type String
+<3> Assignation de la valeur du paramètre `name` au champs `name` de la classe `Cat`
+
+Un constructeur est une méthode particulière qui n’a pas de type de retour et dont le nom doit scrupuleusement être le même que celui de la classe dans laquelle il est déclaré.
+
+Le constructeur est, comme son nom l’indique appelé à la construction de l’objet.
+
+Pour construire un objet on utilise le mot clé `new`.
+Par exemple :
+
+.Fichier Launcher.java
+[source,java]
+----
+public class Launcher {
+    public static void main(String[] args) {
+        Cat myCat = new Cat("Georges");
+
+        System.out.println(myCat.name);
+    }
+}
+----
+
+Une classe peut avoir autant de constructeurs qu’on le souhaite.
+
+Une classe qui ne déclare aucun constructeur explicitement possède un _constructeur par défaut_.
+Le constructeur par défaut ne prend aucun paramètre et ne fait rien.
+À partir du moment où un constructeur est déclaré explicitement, le constructeur par défaut n’est plus disponible.
+
+==== Visibilité
+
+La visibilité est un mécanisme qui permet à une classe, un champ, ou une méthode d’être accessible ou non à d’autres entités.
+
+Il existe 4 visibilités en Java
+
+* `public` : accessible à tous
+* `private` : accessible uniquement au sein de la classe qui déclare le composant
+* `protected` : accessible aux classes qui étendent la classe qui contient le composant ou aux classes qui se trouvent dans le même `package`.
+* la visibilité par défaut, dite aussi *_package protected_*, quand aucun modificateur de visibilité n’est précisé.
+Le composant est question est alors accessible aux classes se trouvant dans le même package.
+
+Quand on conçoit un programme orienté objet, on va regrouper dans un même package les objets du même domaine, et leurs interactions spécifiques à ce domaine seront *_package protected_*.
+Les comportements intrinsèques aux objets de ce domaine seront `private`, alors que l’API (Application Programming Interface) accessible au reste du programme sera `public`.
+
+=== Concevoir un objet
+
+Un objet doit (dans la majorité des cas) être construit de telle sorte qu’il n’expose pas _à l’extérieur_ la façon dont il représente son état.
+
+Tout l’enjeu de la programmation orientée objet est de réduire le couplage entre les concepts pour simplifier la maintenance, l’évolution et la testabilité du code.
+
+Un mauvais exemple :
+
+.Fichier TrafficLight.java
+[source,java]
+----
+class TrafficLight {
+
+    private int color; // <1>
+
+    public void setColor(int newColor) { // <2>
+        this.color = newColor;
+    }
+
+    public int getColor() {
+        return color;
+    }
+}
+----
+<1> donnée privée, propre à l’objet
+<2> méthode publique permettant de changer la "couleur" du feu
+
+Ici la classe représentant le feu tricolore expose la façon dont elle stocke ses données, et elle ne contient aucune logique.
+Un tel objet est dit _anémique_, car il n’a aucun comportement propre et est considéré dans la majorité des cas comme une mauvaise pratique (code smell).
+Un autre objet qui utilise cette classe devra lui aussi changer si le type du champ `color` (<1>) change.
+
+Un meilleur design pourrait être :
+
+.Fichier TrafficLight.java
+[source,java]
+----
+class TrafficLight {
+
+    private int color;
+
+    public Color nextState() {
+        color = (color + 1) % 3;
+        return Color.values()[color];
+    }
+
+    public enum Color {
+        GREEN,
+        ORANGE,
+        RED,
+    }
+}
+----
+
+Ainsi le "contrat", c’est-à-dire la partie publique de la classe, ne dépend pas de la façon dont l’état est stocké en mémoire, ici avec un `int`.
+Par ailleurs, la logique du feu est codée dans l’objet, rendant impossible les cas qui l’étaient avec l’implémentation précédente :
+
+* `trafficLight.setColor(4)`, mais que veut dire la valeur 4 ?
+* passage du vert au rouge ou du rouge à l’orange
+
+=== Comparer des objets
+
+En Java, l’opérateur `==` permet de comparer que deux objets ont bien la même [.underline]#adresse mémoire#.
+
+Cependant, dans la majorité de cas, il est nécessaire de comparer si deux objets ont la même [.underline]#valeur#.
+Dans ce cas, on utilisera la méthode `equals`.
+Cette méthode est déclarée sur la classe `java.lang.Object` dont tous les objets héritent implicitement.
+Par défaut le comportement de cette méthode est d’utiliser l’opérateur `==`, mais elle est surchargeable !
+
+.Fichier Cat.java
+[source,java]
+----
+public class Cat {
+
+    private final String name;
+    private final int color;
+
+    public Cat(String name, int color) {
+        this.name = name;
+        this.color = color;
+    }
+
+    @Override
+    public boolean equals(Object o) { // <1>
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Cat that = (Cat) o;
+        return color == that.color && Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() { // <2>
+        return Objects.hash(name, color);
+    }
+}
+----
+<1> La surcharge de la méthode `equals` pour un objet de type `Cat` va retourner `true` pour tout paramètre qui est un objet de type `Cat` également et dont la couleur (`color`) et le nom (`name`) sont les mêmes.
+<2> La méthode `equals` est toujours définie [.underline]#avec# la méthode `hashCode`.
+La méthode hashCode est utilisée dans plusieurs algorithmes liés à l’identité, notamment dans les _collections_ et on considère que son comportement [.underline]#doit# être cohérent avec celui de la méthode `equals`.
+C’est-à-dire que deux objets qui sont égaux au sens de la méthode `equals` doivent avoir le même `hashCode`, la réciproque n’est pas vrai, deux objets ayant le même `hashCode` ne sont pas forcément égaux (dans ce cas on parle de collision).
+
+<<<
+
+=== Enum
+
+Les types énumérés sont des classes dont les instances possibles sont limitées et uniques.
+Il n’est pas possible de créer de nouvelles instances d’un type énuméré avec le mot-clé `new`.
+Les valeurs d’un type énuméré peuvent être assimilées à des constantes et accédées de la même façon.
+
+.Fichier FacialHairStyle.java
+[source,java]
+----
+enum FacialHairStyle { // <1>
+
+    BEARDED, // <2>
+    MUSTACHE,
+    BOLD,
+    ;
+
+    // <3>
+
+    public static boolean isBold(FacialHairStyle hairStyle) {
+        return FacialHairStyle.BOLD == hairStyle; // <3>
+    }
+}
+----
+<1> la structure d’un type énuméré est proche de celle d’une classe, mais on remplace le mot-clé `class` par `enum`
+<2> le contenu d’un enum commence toujours par la liste des différentes valeurs possibles, séparées par des virgules `,` et se terminant par un point-virgule `;`
+<3> la suite du contenu est la même que pour les classes, champs, constructeurs et méthodes peuvent être ajoutés
+
+Un enum peut avoir un constructeur, quand les valeurs de l’enum sont associées à de la donnée.
+Cependant le constructeur d’un enum est implicitement `protected` et ne peut pas être préfixé par le mot-clé `public`.
+
+.Fichier FacialHairStyle.java
+[source,java]
+----
+public enum Environment {
+
+    DEV("http://localhost:9876/my-app", ZoneOffset.systemDefault()), // <1>
+    TEST("https://beta.mydomain.com/", ZoneOffset.UTC),
+    PROD("https://app.mydomain.com/", ZoneOffset.UTC),
+    ;
+
+    public final String baseUrl;
+    public final ZoneId zoneId;
+
+    Environment(String baseUrl, ZoneId zoneId) { // <2>
+        this.baseUrl = baseUrl;
+        this.zoneId = zoneId;
+    }
+}
+----
+<1> l’utilisation du constructeur se fait par l’ajout de paramètres entre parenthèses après chaque valeur
+<2> le constructeur s’écrit comme celui d’une classe
+
+Un enum peut implémenter une interface, mais ne peut pas étendre une classe abstraite.
+
+Par ailleurs un enum est implicitement `final` et ne peut pas être étendu.
+
+<<<
+
+=== Record
+
+Un record permet de décrire de manière concise une classe _anémique_ (sans comportement) et immutable.
+Ainsi les méthodes `equals`, `hashCode`, `toString` ainsi que les accesseurs sont générés de manière à refléter les paramètres du record.
+
+.Fichier LocalTemperature.java
+[source,java]
+----
+record LocalTemperature(
+    double temperature,
+    double latitude,
+    double longitude){}
+----
+
+.Fichier Launcher.java
+[source,java]
+----
+public class Launcher {
+    public static void main(String[] args) {
+        var t1 = new LocalTemperature(12.3D, 48.8320315D, 2.2277601D);
+
+        System.out.println(t1.temperature()); // <1>
+
+        var temperatureList = Set.of(t1);
+        System.out.println(temperatureList.contains(new LocalTemperature(12.3D, 48.8320315D, 2.2277601D))); // Displays true // <2>
+
+        System.out.println(t1); // Displays LocalTemperature[temperature=12.3, latitude=48.8320315, longitude=2.2277601] // <3>
+    }
+}
+----
+<1> utilisation d’un des accesseurs générés
+<2> utilisation des méthodes générées `equals` et `hashCode` par l’algorithme du `HashSet` (complexité en O(1))
+<3> utilisation de la méthode générée `toString`
