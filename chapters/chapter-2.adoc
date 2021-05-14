@@ -1,4 +1,5 @@
 == Le langage Java, deuxième partie
+:hardbreaks-option:
 
 === Formes conditionnelles
 
@@ -92,7 +93,7 @@ Une boucle `for` est une boucle dans laquelle on accède à l’index de l’it�
 [source,java]
 ----
 for (int index = 1; index < 4; index++) { // <1>
-    System.out.println(index); // 2
+    System.out.println(index); // <2>
 }
 ----
 <1> déclaration d’une variable `index` qui prendra les valeurs de 1 à 4 exclus avec un pas de 1

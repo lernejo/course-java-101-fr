@@ -6,6 +6,11 @@ Loïc Ledoyen <loic.ledoyen@gmail.com>
 :hardbreaks-option:
 :toc:
 :title-page:
+
+ifndef::ci[]
+:imagesdir: ./images
+endif::[]
+
 :title-logo-image: image:logo.png[top=25%, align=center, pdfwidth=0.5in]
 
 <<<

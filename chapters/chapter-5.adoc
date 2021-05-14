@@ -1,4 +1,5 @@
 == Écosystème Java
+:hardbreaks-option:
 
 === Maven
 

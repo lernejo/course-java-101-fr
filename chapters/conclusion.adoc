@@ -1,4 +1,5 @@
 == Conclusion
+:hardbreaks-option:
 
 Ce cours vous a permis de voir un panel des fonctionnalités du langage Java ainsi qu’un aperçu de l’écosystème qui l’entoure.
 
@@ -6,7 +7,7 @@ Il reste bien d’autres choses à explorer, que ce soit dans le langage lui-mê
 
 Mais cette histoire sera pour une prochaine fois.
 
-==== Pour aller plus loin
+=== Pour aller plus loin
 
 * La bible de JM Doudoux : https://www.jmdoudoux.fr/accueil_java.htm
 * Les vidéos de José Paumard : https://www.youtube.com/c/coursenlignejava/videos

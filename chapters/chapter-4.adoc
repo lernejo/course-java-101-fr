@@ -1,4 +1,5 @@
 == Le langage Java, quatrième partie
+:hardbreaks-option:
 
 === Thread
 

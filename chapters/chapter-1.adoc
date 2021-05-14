@@ -1,4 +1,5 @@
 == Le langage Java, première partie
+:hardbreaks-option:
 
 === Point d’entrée d’un programme Java
 
