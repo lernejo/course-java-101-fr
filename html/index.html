@@ -718,7 +718,7 @@ pre.rouge {
 </ul>
 </li>
 <li><a href="#_conclusion">Conclusion</a>
-<ul class="sectlevel3">
+<ul class="sectlevel2">
 <li><a href="#_pour_aller_plus_loin">Pour aller plus loin</a></li>
 </ul>
 </li>
@@ -2026,7 +2026,7 @@ est équivalent à</p>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="java"><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="o">;</span> <span class="n">index</span><span class="o">++)</span> <span class="o">{</span> // <b class="conum">(1)</b>
-    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">index</span><span class="o">);</span> <span class="c1">// 2</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">index</span><span class="o">);</span> // <b class="conum">(2)</b>
 <span class="o">}</span></code></pre>
 </div>
 </div>
@@ -2547,7 +2547,7 @@ Cette écriture est appelée <em>diamond operator</em> en référence à la form
     <span class="kd">private</span> <span class="kd">final</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">MarketItem</span><span class="o">&gt;</span> <span class="n">items</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
 
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">add</span><span class="o">(</span><span class="nc">MarketItem</span> <span class="n">item</span><span class="o">)</span> <span class="o">{</span> // <b class="conum">(2)</b>
-        <span class="k">if</span> <span class="o">(</span><span class="n">totalWeight</span><span class="o">()</span> <span class="o">+</span> <span class="n">item</span><span class="o">.</span><span class="na">weight</span><span class="o">()</span> <span class="o">&gt;</span> <span class="no">MAX_WEIGHT_IN_KG</span><span class="o">)</span> <span class="o">{</span> // <b class="conum">(1)</b>
+        <span class="k">if</span> <span class="o">(</span><span class="n">totalWeight</span><span class="o">()</span> <span class="o">+</span> <span class="n">item</span><span class="o">.</span><span class="na">weight</span><span class="o">()</span> <span class="o">&gt;</span> <span class="no">MAX_WEIGHT_IN_KG</span><span class="o">)</span> <span class="o">{</span> // <b class="conum">(3)</b>
             <span class="k">throw</span> <span class="k">new</span> <span class="nf">MarketBasketFullException</span><span class="o">(</span><span class="s">"Carry these water bottles yourself !"</span><span class="o">);</span>
         <span class="o">}</span>
         <span class="n">items</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">item</span><span class="o">);</span>
@@ -2858,7 +2858,7 @@ Stream&lt;Integer&gt; ageStream = people.stream().map(p -&gt; p.age);</pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="/github/workspace/images/stream_op_map.png" alt="stream op map">
+<img src="./../images/stream_op_map.png" alt="stream op map">
 </div>
 </div>
 <div class="ulist">
@@ -2896,7 +2896,7 @@ Stream&lt;Person&gt; adultStream = people.stream().filter(p -&gt; p.age &gt; 18)
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="/github/workspace/images/stream_op_filter.png" alt="stream op filter">
+<img src="./../images/stream_op_filter.png" alt="stream op filter">
 </div>
 </div>
 <div class="ulist">
@@ -2932,7 +2932,7 @@ Stream&lt;Person&gt; adultStream = people.stream().filter(p -&gt; p.age &gt; 18)
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="/github/workspace/images/stream_op_flatmap.png" alt="stream op flatmap">
+<img src="./../images/stream_op_flatmap.png" alt="stream op flatmap">
 </div>
 </div>
 <div style="page-break-after: always;"></div>
@@ -3417,7 +3417,7 @@ Dans cette architecture, le coeur d’exécution n’apporte que peu de fonction
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="/github/workspace/images/maven_lifecycle.png" alt="maven lifecycle">
+<img src="./../images/maven_lifecycle.png" alt="maven lifecycle">
 </div>
 </div>
 <div class="paragraph">
@@ -3795,8 +3795,8 @@ Il s’agit de l’appel au bloc de code que l’on souhaite tester.</p>
 <div class="paragraph">
 <p>Mais cette histoire sera pour une prochaine fois.</p>
 </div>
-<div class="sect3">
-<h4 id="_pour_aller_plus_loin">Pour aller plus loin</h4>
+<div class="sect2">
+<h3 id="_pour_aller_plus_loin">Pour aller plus loin</h3>
 <div class="ulist">
 <ul>
 <li>
