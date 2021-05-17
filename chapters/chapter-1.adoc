@@ -163,8 +163,8 @@ Les opérateurs d’assignations stockent le résultat du calcul dans l’opéra
 | Opérateur | Description | Exemple
 | += | Additionne deux nombres ou concatène deux chaînes de caractères | a += "toto"
 | -= | Soustrait deux nombres | a -= 3.2
-| /= | Multiplie deux nombres | b /= 2
-| *= | Divise deux nombres | a *= 2
+| /= | Divise deux nombres | b /= 2
+| *= | Multiplie deux nombres | a *= 2
 |===
 
 Les opérateurs d’assignations peuvent être écrits avec les opérateurs de calculs.
