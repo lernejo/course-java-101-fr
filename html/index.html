@@ -1358,6 +1358,38 @@ Par exemple :</p>
 </li>
 </ol>
 </div>
+<div class="paragraph">
+<p>Classiquement, tester le type d&#8217;une variable est suivi par un <strong>cast</strong> :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kt">void</span> <span class="nf">callBarkIfPossible</span><span class="o">(</span><span class="nc">Animal</span> <span class="n">animal</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">animal</span> <span class="k">instanceof</span> <span class="nc">Dog</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Dog</span> <span class="n">dog</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Dog</span><span class="o">)</span> <span class="n">animal</span><span class="o">;</span> // <b class="conum">(1)</b>
+        <span class="n">dog</span><span class="o">.</span><span class="na">bark</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Ce type de <strong>cast</strong> est appelé <strong>downcasting</strong> (passage d&#8217;un type parent à un type enfant)</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>A partir de Java 16 l&#8217;opérateur <code>instanceof</code> peut prendre une opérande supplémentaire afin d&#8217;obtenir directement une variable du type testé :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kt">void</span> <span class="nf">callBarkIfPossible</span><span class="o">(</span><span class="nc">Animal</span> <span class="n">animal</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">animal</span> <span class="k">instanceof</span> <span class="nc">Dog</span> <span class="n">dog</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">dog</span><span class="o">.</span><span class="na">bark</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_nommage">1.5. Nommage</h3>
