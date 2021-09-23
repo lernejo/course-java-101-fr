@@ -4,7 +4,7 @@ Loïc Ledoyen <loic.ledoyen@gmail.com>
 :listing-caption: Listing
 :source-highlighter: rouge
 :hardbreaks-option:
-:toc:
+:toc: left
 :title-page:
 
 ifndef::ci[]
