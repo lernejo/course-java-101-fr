@@ -219,8 +219,30 @@ if (a instanceof ArrayList) {
     // ... // <1>
 }
 ----
-
 <1> l’execution entrera dans le bloc si l’objet pointé par la variable `a` est de type `ArrayList` ou d’un sous-type d’ `ArrayList`
+
+Classiquement, tester le type d'une variable est suivi par un *cast* :
+
+[source,java]
+----
+void callBarkIfPossible(Animal animal) {
+    if (animal instanceof Dog) {
+        Dog dog = (Dog) animal; // <1>
+        dog.bark();
+    }
+}
+----
+<1> Ce type de *cast* est appelé *downcasting* (passage d'un type parent à un type enfant)
+
+A partir de Java 16 l'opérateur `instanceof` peut prendre une opérande supplémentaire afin d'obtenir directement une variable du type testé :
+[source,java]
+----
+void callBarkIfPossible(Animal animal) {
+    if (animal instanceof Dog dog) {
+        dog.bark();
+    }
+}
+----
 
 === Nommage
 
