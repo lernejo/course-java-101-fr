@@ -1,5 +1,5 @@
 = Java 101
-Loïc Ledoyen <loic.ledoyen@gmail.com>
+Loïc Ledoyen <ledoyen.loic@gmail.com>
 :reproducible:
 :listing-caption: Listing
 :source-highlighter: rouge
