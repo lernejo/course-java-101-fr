@@ -889,10 +889,10 @@ Cette technique est associée à un temps de chauffe, temps nécessaire au JIT p
 <p>La classe contenant la fonction <code>main</code> doit être publique</p>
 </li>
 <li>
-<p>la <em>signature</em> de la méthode doit être exacte, si elle n’est pas statique ou publique ou que les paramètres ne sont pas un unique tableau de chaîne de caractères, la fonction ne sera pas reconnue</p>
+<p>La <em>signature</em> de la méthode doit être exacte, si elle n’est pas statique ou publique ou que les paramètres ne sont pas un unique tableau de chaîne de caractères, la fonction ne sera pas reconnue</p>
 </li>
 <li>
-<p>du code <em>procédural</em> peut être écrit à l’intérieur de cette méthode, en Java, les instructions doivent se terminer par un point-virgule <code>;</code></p>
+<p>Du code <em>procédural</em> peut être écrit à l’intérieur de cette méthode, en Java, les instructions doivent se terminer par un point-virgule <code>;</code></p>
 </li>
 </ol>
 </div>
@@ -912,13 +912,13 @@ java <span class="nt">-jar</span> helloWorld.jar Launcher Lernejo <span class="c
 <div class="colist arabic">
 <ol>
 <li>
-<p>compilation, cela va produire le fichier Launcher.class contenant du <em>byte code</em></p>
+<p>Compilation, cela va produire le fichier Launcher.class contenant du <em>byte code</em></p>
 </li>
 <li>
-<p>création d’une archive Java contenant l’unique classe compilée</p>
+<p>Création d’une archive Java contenant l’unique classe compilée</p>
 </li>
 <li>
-<p>execution du programme, Java va chercher une fonction <code>main</code> dans la classe <code>Launcher</code> qui lui est indiquée comme point d’entrée, le tableau <code>args</code> aura une unique entrée, le seul paramètre qui est passé au programme : <code>"Lernejo"</code></p>
+<p>Execution du programme, Java va chercher une fonction <code>main</code> dans la classe <code>Launcher</code> qui lui est indiquée comme point d’entrée, le tableau <code>args</code> aura une unique entrée, le seul paramètre qui est passé au programme : <code>"Lernejo"</code></p>
 </li>
 </ol>
 </div>
@@ -957,25 +957,25 @@ java <span class="nt">-jar</span> helloWorld.jar Launcher Lernejo <span class="c
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">byte</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">entier positif ou négatif</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Entier positif ou négatif</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">short</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">entier positif ou négatif</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Entier positif ou négatif</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">entier positif ou négatif</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Entier positif ou négatif</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1452</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">long</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">entier positif ou négatif</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Entier positif ou négatif</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">164478945</p></td>
 </tr>
 <tr>
@@ -1340,7 +1340,7 @@ Les bits qui sortent à droite sont perdus, et des zéros sont insérés à gauc
 </tbody>
 </table>
 <div class="paragraph">
-<p>L’opérateur <code>instanceof</code> renvoit vrai si le type de l’objet testé, est égal à, ou égal à un sous-type de, l’opérande de droite.<br>
+<p>L’opérateur <code>instanceof</code> renvoie vrai si le type de l’objet testé, est égal à, ou égal à un sous-type de, l’opérande de droite.<br>
 Par exemple :</p>
 </div>
 <div class="listingblock">
@@ -1353,9 +1353,41 @@ Par exemple :</p>
 <div class="colist arabic">
 <ol>
 <li>
-<p>l’execution entrera dans le bloc si l’objet pointé par la variable <code>a</code> est de type <code>ArrayList</code> ou d’un sous-type d’ <code>ArrayList</code></p>
+<p>L’execution entrera dans le bloc si l’objet pointé par la variable <code>a</code> est de type <code>ArrayList</code> ou d’un sous-type d’<code>ArrayList</code></p>
 </li>
 </ol>
+</div>
+<div class="paragraph">
+<p>Classiquement, tester le type d’une variable est suivi par un <strong>cast</strong> :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kt">void</span> <span class="nf">callBarkIfPossible</span><span class="o">(</span><span class="nc">Animal</span> <span class="n">animal</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">animal</span> <span class="k">instanceof</span> <span class="nc">Dog</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Dog</span> <span class="n">dog</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Dog</span><span class="o">)</span> <span class="n">animal</span><span class="o">;</span> // <b class="conum">(1)</b>
+        <span class="n">dog</span><span class="o">.</span><span class="na">bark</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Ce type de <strong>cast</strong> est appelé <strong>downcasting</strong> (passage d’un type parent à un type enfant)</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>A partir de Java 16 l’opérateur <code>instanceof</code> peut prendre une opérande supplémentaire afin d’obtenir directement une variable du type testé :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kt">void</span> <span class="nf">callBarkIfPossible</span><span class="o">(</span><span class="nc">Animal</span> <span class="n">animal</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">animal</span> <span class="k">instanceof</span> <span class="nc">Dog</span> <span class="n">dog</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">dog</span><span class="o">.</span><span class="na">bark</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -1519,7 +1551,7 @@ Faire une mise à jour de la bibliothèque en question peut changer les définit
 </div>
 <div class="paragraph">
 <p>Une classe doit être dans une hiérarchie de répertoires correspondante au package déclaré en entête.<br>
-C&#8217;est-à-dire que la classe ci-dessus doit être compilée comme ceci : <code>javac com/lernejo/animals/Cat.java</code></p>
+C’est-à-dire que la classe ci-dessus doit être compilée comme ceci : <code>javac com/lernejo/animals/Cat.java</code></p>
 </div>
 </td>
 </tr>
@@ -1565,7 +1597,7 @@ Le nombre de lignes d’une méthode doit être raisonnable afin que sa compréh
 <p>Ici le champ est <code>public</code>, mais <code>final</code>, donc il n’est pas modifiable une fois l’objet créé</p>
 </li>
 <li>
-<p>un constructeur prenant un paramètre de type String</p>
+<p>Un constructeur prenant un paramètre de type String</p>
 </li>
 <li>
 <p>Assignation de la valeur du paramètre <code>name</code> au champs <code>name</code> de la classe <code>Cat</code></p>
@@ -1623,7 +1655,7 @@ Le constructeur par défaut ne prend aucun paramètre et ne fait rien.<br>
 <p><code>protected</code> : accessible aux classes qui étendent la classe qui contient le composant ou aux classes qui se trouvent dans le même <code>package</code>.</p>
 </li>
 <li>
-<p>la visibilité par défaut, dite aussi <strong><em>package protected</em></strong>, quand aucun modificateur de visibilité n’est précisé.<br>
+<p>La visibilité par défaut, dite aussi <strong><em>package protected</em></strong>, quand aucun modificateur de visibilité n’est précisé.<br>
 Le composant est question est alors accessible aux classes se trouvant dans le même package.</p>
 </li>
 </ul>
@@ -1665,10 +1697,10 @@ Les comportements intrinsèques aux objets de ce domaine seront <code>private</c
 <div class="colist arabic">
 <ol>
 <li>
-<p>donnée privée, propre à l’objet</p>
+<p>Donnée privée, propre à l’objet</p>
 </li>
 <li>
-<p>méthode publique permettant de changer la "couleur" du feu</p>
+<p>Méthode publique permettant de changer la "couleur" du feu</p>
 </li>
 </ol>
 </div>
@@ -1710,7 +1742,7 @@ Par ailleurs, la logique du feu est codée dans l’objet, rendant impossible le
 <p><code>trafficLight.setColor(4)</code>, mais que veut dire la valeur 4 ?</p>
 </li>
 <li>
-<p>passage du vert au rouge ou du rouge à l’orange</p>
+<p>Passage du vert au rouge ou du rouge à l’orange</p>
 </li>
 </ul>
 </div>
@@ -1796,13 +1828,13 @@ Les valeurs d’un type énuméré peuvent être assimilées à des constantes e
 <div class="colist arabic">
 <ol>
 <li>
-<p>la structure d’un type énuméré est proche de celle d’une classe, mais on remplace le mot-clé <code>class</code> par <code>enum</code></p>
+<p>La structure d’un type énuméré est proche de celle d’une classe, mais on remplace le mot-clé <code>class</code> par <code>enum</code></p>
 </li>
 <li>
-<p>le contenu d’un enum commence toujours par la liste des différentes valeurs possibles, séparées par des virgules <code>,</code> et se terminant par un point-virgule <code>;</code></p>
+<p>Le contenu d’un enum commence toujours par la liste des différentes valeurs possibles, séparées par des virgules <code>,</code> et se terminant par un point-virgule <code>;</code></p>
 </li>
 <li>
-<p>la suite du contenu est la même que pour les classes, champs, constructeurs et méthodes peuvent être ajoutés</p>
+<p>La suite du contenu est la même que pour les classes, champs, constructeurs et méthodes peuvent être ajoutés</p>
 </li>
 </ol>
 </div>
@@ -1833,10 +1865,10 @@ Cependant le constructeur d’un enum est implicitement <code>protected</code> e
 <div class="colist arabic">
 <ol>
 <li>
-<p>l’utilisation du constructeur se fait par l’ajout de paramètres entre parenthèses après chaque valeur</p>
+<p>L’utilisation du constructeur se fait par l’ajout de paramètres entre parenthèses après chaque valeur</p>
 </li>
 <li>
-<p>le constructeur s’écrit comme celui d’une classe</p>
+<p>Le constructeur s’écrit comme celui d’une classe</p>
 </li>
 </ol>
 </div>
@@ -1883,13 +1915,13 @@ Ainsi les méthodes <code>equals</code>, <code>hashCode</code>, <code>toString</
 <div class="colist arabic">
 <ol>
 <li>
-<p>utilisation d’un des accesseurs générés</p>
+<p>Utilisation d’un des accesseurs générés</p>
 </li>
 <li>
-<p>utilisation des méthodes générées <code>equals</code> et <code>hashCode</code> par l’algorithme du <code>HashSet</code> (complexité en O(1))</p>
+<p>Utilisation des méthodes générées <code>equals</code> et <code>hashCode</code> par l’algorithme du <code>HashSet</code> (complexité en O(1))</p>
 </li>
 <li>
-<p>utilisation de la méthode générée <code>toString</code></p>
+<p>Utilisation de la méthode générée <code>toString</code></p>
 </li>
 </ol>
 </div>
