@@ -17,8 +17,8 @@ public class Launcher { // <1>
 }
 ----
 <1> La classe contenant la fonction `main` doit être publique
-<2> la _signature_ de la méthode doit être exacte, si elle n’est pas statique ou publique ou que les paramètres ne sont pas un unique tableau de chaîne de caractères, la fonction ne sera pas reconnue
-<3> du code _procédural_ peut être écrit à l’intérieur de cette méthode, en Java, les instructions doivent se terminer par un point-virgule `;`
+<2> La _signature_ de la méthode doit être exacte, si elle n’est pas statique ou publique ou que les paramètres ne sont pas un unique tableau de chaîne de caractères, la fonction ne sera pas reconnue
+<3> Du code _procédural_ peut être écrit à l’intérieur de cette méthode, en Java, les instructions doivent se terminer par un point-virgule `;`
 
 Le paramètre de la fonction `main` correspond aux arguments passés au programme.
 
@@ -30,9 +30,9 @@ javac Launcher.java # <1>
 jar -cf helloWorld.jar Launcher.class # <2>
 java -jar helloWorld.jar Launcher Lernejo # Will display ’Hello Lernejo’ # <3>
 ----
-<1> compilation, cela va produire le fichier Launcher.class contenant du _byte code_
-<2> création d’une archive Java contenant l’unique classe compilée
-<3> execution du programme, Java va chercher une fonction `main` dans la classe `Launcher` qui lui est indiquée comme point d’entrée, le tableau `args` aura une unique entrée, le seul paramètre qui est passé au programme : `"Lernejo"`
+<1> Compilation, cela va produire le fichier Launcher.class contenant du _byte code_
+<2> Création d’une archive Java contenant l’unique classe compilée
+<3> Execution du programme, Java va chercher une fonction `main` dans la classe `Launcher` qui lui est indiquée comme point d’entrée, le tableau `args` aura une unique entrée, le seul paramètre qui est passé au programme : `"Lernejo"`
 
 <<<
 
@@ -47,13 +47,13 @@ Les premiers commencent par une minuscule et représentent directement la donné
 
 |boolean |32 (un `int` avec 0 ou 1 comme valeur) |true ou false | true
 
-|byte |8 |entier positif ou négatif |
+|byte |8 |Entier positif ou négatif |
 
-|short |16 |entier positif ou négatif | 32
+|short |16 |Entier positif ou négatif | 32
 
-|int |32 |entier positif ou négatif | 1452
+|int |32 |Entier positif ou négatif | 1452
 
-|long |64 |entier positif ou négatif | 164478945
+|long |64 |Entier positif ou négatif | 164478945
 
 |float |32 |IEEE 754 | 124.54
 
@@ -66,7 +66,7 @@ Les seconds sont des objets et leurs noms commencent par une majuscule.
 
 [IMPORTANT]
 ====
-C’est pourquoi il est important, quand on crée un nouveau type (classe, interface, enum ou record) que son nom commence par une *[.underline]#Majuscule#*.
+C’est pourquoi il est important, quand on crée un nouveau type (classe, interface, enum ou record) que son nom commence par une *[underline]#Majuscule#*.
 ====
 
 === Les variables
@@ -172,8 +172,8 @@ Par exemple `b /= 2;` est équivalent à `b = b / 2;`.
 
 Les opérateurs d’incrémentation peuvent être placés à gauche ou à droite d’une variable de façon à ce que l’opération soit réalisée avant ou après l’exploitation du résultat.
 
-Par exemple, dans `array[++i] = 0 ;`, c’est la valeur de `i` _[.underline]#après#_ l’incrémentation qui est utilisée comme index du tableau.
-A contrario, dans `array[i--] = 0 ;`, c’est la valeur de `i` _[.underline]#avant#_ la décrémentation qui est utilisée comme index du tableau.
+Par exemple, dans `array[++i] = 0 ;`, c’est la valeur de `i` _[underline]#après#_ l’incrémentation qui est utilisée comme index du tableau.
+A contrario, dans `array[i--] = 0 ;`, c’est la valeur de `i` _[underline]#avant#_ la décrémentation qui est utilisée comme index du tableau.
 
 Les opérateurs de comparaison, renvoient vrai si...
 
@@ -210,7 +210,7 @@ Les bits qui sortent à droite sont perdus, et le bit non-nul de poids plus fort
 Les bits qui sortent à droite sont perdus, et des zéros sont insérés à gauche | non | 6 >>> 2
 |===
 
-L’opérateur `instanceof` renvoit vrai si le type de l’objet testé, est égal à, ou égal à un sous-type de, l’opérande de droite.
+L’opérateur `instanceof` renvoie vrai si le type de l’objet testé, est égal à, ou égal à un sous-type de, l’opérande de droite.
 Par exemple :
 
 [source,java]
@@ -219,8 +219,30 @@ if (a instanceof ArrayList) {
     // ... // <1>
 }
 ----
+<1> L’execution entrera dans le bloc si l’objet pointé par la variable `a` est de type `ArrayList` ou d’un sous-type d’`ArrayList`
 
-<1> l’execution entrera dans le bloc si l’objet pointé par la variable `a` est de type `ArrayList` ou d’un sous-type d’ `ArrayList`
+Classiquement, tester le type d’une variable est suivi par un *cast* :
+
+[source,java]
+----
+void callBarkIfPossible(Animal animal) {
+    if (animal instanceof Dog) {
+        Dog dog = (Dog) animal; // <1>
+        dog.bark();
+    }
+}
+----
+<1> Ce type de *cast* est appelé *downcasting* (passage d’un type parent à un type enfant)
+
+A partir de Java 16 l’opérateur `instanceof` peut prendre une opérande supplémentaire afin d’obtenir directement une variable du type testé :
+[source,java]
+----
+void callBarkIfPossible(Animal animal) {
+    if (animal instanceof Dog dog) {
+        dog.bark();
+    }
+}
+----
 
 === Nommage
 
@@ -323,7 +345,7 @@ Le package (équivalent du namespace en C++ ou C#) dans lequel se trouve la clas
 La concaténation du package et du nom de la classe est appelé chemin qualifié.
 
 Une classe doit être dans une hiérarchie de répertoires correspondante au package déclaré en entête.
-C'est-à-dire que la classe ci-dessus doit être compilée comme ceci : `javac com/lernejo/animals/Cat.java`
+C’est-à-dire que la classe ci-dessus doit être compilée comme ceci : `javac com/lernejo/animals/Cat.java`
 ====
 
 Les imports, permettent d’utiliser des types qui ne sont pas dans le même package ou dans le package `java.lang`.
@@ -355,7 +377,7 @@ public class Cat {
 }
 ----
 <1> Ici le champ est `public`, mais `final`, donc il n’est pas modifiable une fois l’objet créé
-<2> un constructeur prenant un paramètre de type String
+<2> Un constructeur prenant un paramètre de type String
 <3> Assignation de la valeur du paramètre `name` au champs `name` de la classe `Cat`
 
 Un constructeur est une méthode particulière qui n’a pas de type de retour et dont le nom doit scrupuleusement être le même que celui de la classe dans laquelle il est déclaré.
@@ -392,7 +414,7 @@ Il existe 4 visibilités en Java
 * `public` : accessible à tous
 * `private` : accessible uniquement au sein de la classe qui déclare le composant
 * `protected` : accessible aux classes qui étendent la classe qui contient le composant ou aux classes qui se trouvent dans le même `package`.
-* la visibilité par défaut, dite aussi *_package protected_*, quand aucun modificateur de visibilité n’est précisé.
+* La visibilité par défaut, dite aussi *_package protected_*, quand aucun modificateur de visibilité n’est précisé.
 Le composant est question est alors accessible aux classes se trouvant dans le même package.
 
 Quand on conçoit un programme orienté objet, on va regrouper dans un même package les objets du même domaine, et leurs interactions spécifiques à ce domaine seront *_package protected_*.
@@ -422,8 +444,8 @@ class TrafficLight {
     }
 }
 ----
-<1> donnée privée, propre à l’objet
-<2> méthode publique permettant de changer la "couleur" du feu
+<1> Donnée privée, propre à l’objet
+<2> Méthode publique permettant de changer la "couleur" du feu
 
 Ici la classe représentant le feu tricolore expose la façon dont elle stocke ses données, et elle ne contient aucune logique.
 Un tel objet est dit _anémique_, car il n’a aucun comportement propre et est considéré dans la majorité des cas comme une mauvaise pratique (code smell).
@@ -455,13 +477,13 @@ Ainsi le "contrat", c’est-à-dire la partie publique de la classe, ne dépend 
 Par ailleurs, la logique du feu est codée dans l’objet, rendant impossible les cas qui l’étaient avec l’implémentation précédente :
 
 * `trafficLight.setColor(4)`, mais que veut dire la valeur 4 ?
-* passage du vert au rouge ou du rouge à l’orange
+* Passage du vert au rouge ou du rouge à l’orange
 
 === Comparer des objets
 
-En Java, l’opérateur `==` permet de comparer que deux objets ont bien la même [.underline]#adresse mémoire#.
+En Java, l’opérateur `==` permet de comparer que deux objets ont bien la même [underline]#adresse mémoire#.
 
-Cependant, dans la majorité de cas, il est nécessaire de comparer si deux objets ont la même [.underline]#valeur#.
+Cependant, dans la majorité de cas, il est nécessaire de comparer si deux objets ont la même [underline]#valeur#.
 Dans ce cas, on utilisera la méthode `equals`.
 Cette méthode est déclarée sur la classe `java.lang.Object` dont tous les objets héritent implicitement.
 Par défaut le comportement de cette méthode est d’utiliser l’opérateur `==`, mais elle est surchargeable !
@@ -494,8 +516,8 @@ public class Cat {
 }
 ----
 <1> La surcharge de la méthode `equals` pour un objet de type `Cat` va retourner `true` pour tout paramètre qui est un objet de type `Cat` également et dont la couleur (`color`) et le nom (`name`) sont les mêmes.
-<2> La méthode `equals` est toujours définie [.underline]#avec# la méthode `hashCode`.
-La méthode hashCode est utilisée dans plusieurs algorithmes liés à l’identité, notamment dans les _collections_ et on considère que son comportement [.underline]#doit# être cohérent avec celui de la méthode `equals`.
+<2> La méthode `equals` est toujours définie [underline]#avec# la méthode `hashCode`.
+La méthode hashCode est utilisée dans plusieurs algorithmes liés à l’identité, notamment dans les _collections_ et on considère que son comportement [underline]#doit# être cohérent avec celui de la méthode `equals`.
 C’est-à-dire que deux objets qui sont égaux au sens de la méthode `equals` doivent avoir le même `hashCode`, la réciproque n’est pas vrai, deux objets ayant le même `hashCode` ne sont pas forcément égaux (dans ce cas on parle de collision).
 
 <<<
@@ -523,9 +545,9 @@ enum FacialHairStyle { // <1>
     }
 }
 ----
-<1> la structure d’un type énuméré est proche de celle d’une classe, mais on remplace le mot-clé `class` par `enum`
-<2> le contenu d’un enum commence toujours par la liste des différentes valeurs possibles, séparées par des virgules `,` et se terminant par un point-virgule `;`
-<3> la suite du contenu est la même que pour les classes, champs, constructeurs et méthodes peuvent être ajoutés
+<1> La structure d’un type énuméré est proche de celle d’une classe, mais on remplace le mot-clé `class` par `enum`
+<2> Le contenu d’un enum commence toujours par la liste des différentes valeurs possibles, séparées par des virgules `,` et se terminant par un point-virgule `;`
+<3> La suite du contenu est la même que pour les classes, champs, constructeurs et méthodes peuvent être ajoutés
 
 Un enum peut avoir un constructeur, quand les valeurs de l’enum sont associées à de la donnée.
 Cependant le constructeur d’un enum est implicitement `protected` et ne peut pas être préfixé par le mot-clé `public`.
@@ -549,8 +571,8 @@ public enum Environment {
     }
 }
 ----
-<1> l’utilisation du constructeur se fait par l’ajout de paramètres entre parenthèses après chaque valeur
-<2> le constructeur s’écrit comme celui d’une classe
+<1> L’utilisation du constructeur se fait par l’ajout de paramètres entre parenthèses après chaque valeur
+<2> Le constructeur s’écrit comme celui d’une classe
 
 Un enum peut implémenter une interface, mais ne peut pas étendre une classe abstraite.
 
@@ -588,6 +610,6 @@ public class Launcher {
     }
 }
 ----
-<1> utilisation d’un des accesseurs générés
-<2> utilisation des méthodes générées `equals` et `hashCode` par l’algorithme du `HashSet` (complexité en O(1))
-<3> utilisation de la méthode générée `toString`
+<1> Utilisation d’un des accesseurs générés
+<2> Utilisation des méthodes générées `equals` et `hashCode` par l’algorithme du `HashSet` (complexité en O(1))
+<3> Utilisation de la méthode générée `toString`
