@@ -1,5 +1,5 @@
+include::chapter-base.adoc[]
 == Le langage Java, troisième partie
-:hardbreaks-option:
 
 === Généricité
 

@@ -1,5 +1,5 @@
+include::chapter-base.adoc[]
 == Le langage Java, deuxième partie
-:hardbreaks-option:
 
 === Formes conditionnelles
 

@@ -1,0 +1,4 @@
+ifndef::course-root[]
+:hardbreaks-option:
+:imagesdir: ./../images
+endif::[]

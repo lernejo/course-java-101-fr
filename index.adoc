@@ -1,17 +1,22 @@
 = Java 101
 Loïc Ledoyen <ledoyen.loic@gmail.com>
 :reproducible:
+:toc-title: Java 101
 :listing-caption: Listing
+:tip-caption: Conseil
+:caution-caption: ⚠️
 :source-highlighter: rouge
 :hardbreaks-option:
-:toc:
+:toc: left
 :title-page:
+
+:course-root:
 
 ifndef::ci[]
 :imagesdir: ./images
 endif::[]
 
-:title-logo-image: image:logo.png[top=25%, align=center, pdfwidth=0.5in]
+:title-logo-image: image::logo.png[top=25%, align=center, pdfwidth=0.5in]
 
 <<<
 

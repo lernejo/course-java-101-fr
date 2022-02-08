@@ -1,5 +1,5 @@
+include::chapter-base.adoc[]
 == Conclusion
-:hardbreaks-option:
 
 Ce cours vous a permis de voir un panel des fonctionnalités du langage Java ainsi qu’un aperçu de l’écosystème qui l’entoure.
 

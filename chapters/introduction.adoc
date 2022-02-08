@@ -1,5 +1,5 @@
+include::chapter-base.adoc[]
 == Introduction
-:hardbreaks-option:
 
 Java est un langage sorti en 1998 et développé par Sun Microsystems.
 
