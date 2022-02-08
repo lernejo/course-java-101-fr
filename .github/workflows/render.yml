@@ -1,32 +1,34 @@
 name: Render
 
-on: [push]
+on: [push, workflow_dispatch]
 
 jobs:
   asciidoctor_job:
     runs-on: ubuntu-latest
     name: Render AsciiDoctor
     steps:
-    - name: Check out code 🛎️
-      uses: actions/checkout@v2
-    - name: Build AsciiDoc step 🔧
-      id: documents
-      uses: Analog-inc/asciidoctor-action@v1.2.1
-      with:
-        shellcommand: "./.github/workflows/asciidoc.sh"
-    - name: Extract branch name
-      shell: bash
-      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-      id: extract_branch
-    - name: Deploy binaries 🚀
-      uses: JamesIves/github-pages-deploy-action@4.1.1
-      with:
-        branch: rendered/${{ steps.extract_branch.outputs.branch }}
-        folder: outputs
-    - name: Deploy GH pages 🚀
-      uses: JamesIves/github-pages-deploy-action@4.1.1
-      if: ${{ github.ref == 'refs/heads/main' }}
-      with:
-        branch: gh-pages
-        folder: outputs/html
-
+      - name: Check out code 🛎️
+        uses: actions/checkout@v2
+      - name: Build AsciiDoc step 🔧
+        id: documents
+        uses: Analog-inc/asciidoctor-action@v1.2.1
+        with:
+          shellcommand: "./.github/workflows/asciidoc.sh"
+      - name: Copy images for HTML output
+        run: |
+          sudo cp -rv images outputs/html
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - name: Deploy binaries 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.1
+        with:
+          branch: rendered/${{ steps.extract_branch.outputs.branch }}
+          folder: outputs
+      - name: Deploy GH pages 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.1
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          branch: gh-pages
+          folder: outputs/html

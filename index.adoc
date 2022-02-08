@@ -16,6 +16,18 @@ ifndef::ci[]
 :imagesdir: ./images
 endif::[]
 
+ifdef::ci[]
+:imagesdir: {ci-images-dir}
+endif::[]
+
+ifdef::env-vscode[]
+:source-highlighter: highlightjs
+endif::[]
+
+ifndef::env-vscode[]
+:source-highlighter: rouge
+endif::[]
+
 :title-logo-image: image::logo.png[top=25%, align=center, pdfwidth=0.5in]
 
 <<<
