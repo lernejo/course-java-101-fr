@@ -14,6 +14,9 @@ jobs:
       uses: Analog-inc/asciidoctor-action@v1.2.1
       with:
         shellcommand: "./.github/workflows/asciidoc.sh"
+    - name: Copy images for HTML output
+      run: |
+        sudo cp -rv images outputs/html
     - name: Extract branch name
       shell: bash
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
